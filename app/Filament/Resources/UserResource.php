@@ -42,11 +42,10 @@ class UserResource extends Resource
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create'),
-                Forms\Components\Select::make('roles')
-                    ->multiple()
+                Forms\Components\CheckboxList::make('roles')
+                    ->label('Roles')
                     ->relationship('roles', 'name')
-                    ->preload()
-                    ->searchable(),
+                    ->columns(2),
             ]);
     }
 
@@ -60,72 +59,64 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->badge()
-                    ->searchable(),
+                    ->separator(','),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                BulkAction::make('addGuruPiket')
-                    ->label('Add Role: Guru Piket')
-                    ->action(function (Collection $records) {
-                        $guruPiketRole = Role::where('name', 'Guru Piket')->first();
-                        
-                        if (!$guruPiketRole) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Role Guru Piket tidak ditemukan')
-                                ->send();
-                            return;
-                        }
-
-                        $count = 0;
+                Tables\Actions\BulkAction::make('assignRoles')
+                    ->label('Assign Roles')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('success')
+                    ->form([
+                        Forms\Components\CheckboxList::make('roles')
+                            ->label('Select Roles')
+                            ->options(Role::pluck('name', 'name'))
+                            ->columns(2)
+                            ->required(),
+                    ])
+                    ->action(function (Collection $records, array $data): void {
                         foreach ($records as $user) {
-                            if (!$user->hasRole('Guru Piket')) {
-                                $user->assignRole($guruPiketRole);
-                                $count++;
-                            }
+                            $user->syncRoles($data['roles']);
                         }
 
                         Notification::make()
                             ->success()
-                            ->title("Role Guru Piket berhasil ditambahkan ke {$count} pengguna")
+                            ->title('Roles assigned successfully')
                             ->send();
-                    }),
-                BulkAction::make('removeGuruPiket')
-                    ->label('Remove Role: Guru Piket')
+                    })
+                    ->deselectRecordsAfterCompletion(),
+
+                Tables\Actions\BulkAction::make('removeRoles')
+                    ->label('Remove Roles')
+                    ->icon('heroicon-o-user-minus')
                     ->color('danger')
-                    ->action(function (Collection $records) {
-                        $guruPiketRole = Role::where('name', 'Guru Piket')->first();
-                        
-                        if (!$guruPiketRole) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Role Guru Piket tidak ditemukan')
-                                ->send();
-                            return;
-                        }
-
-                        $count = 0;
+                    ->form([
+                        Forms\Components\CheckboxList::make('roles')
+                            ->label('Select Roles to Remove')
+                            ->options(Role::pluck('name', 'name'))
+                            ->columns(2)
+                            ->required(),
+                    ])
+                    ->action(function (Collection $records, array $data): void {
                         foreach ($records as $user) {
-                            if ($user->hasRole('Guru Piket')) {
-                                $user->removeRole($guruPiketRole);
-                                $count++;
+                            foreach ($data['roles'] as $role) {
+                                $user->removeRole($role);
                             }
                         }
 
                         Notification::make()
                             ->success()
-                            ->title("Role Guru Piket berhasil dihapus dari {$count} pengguna")
+                            ->title('Roles removed successfully')
                             ->send();
-                    }),
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                    })
+                    ->deselectRecordsAfterCompletion(),
+
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
