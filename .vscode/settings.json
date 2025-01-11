@@ -1,0 +1,13 @@
+{
+    "css.validate": false,
+    "tailwindCSS.emmetCompletions": true,
+    "tailwindCSS.includeLanguages": {
+        "blade": "html",
+        "javascript": "javascript",
+        "typescript": "javascript"
+    },
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "git.ignoreLimitWarning": true
+} 

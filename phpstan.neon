@@ -1,0 +1,23 @@
+parameters:
+    level: 5
+    paths:
+        - app
+        - config
+        - database
+        - routes
+        - tests
+
+    excludePaths:
+        - app/Console/Kernel.php
+        - app/Exceptions/Handler.php
+        - app/Http/Middleware
+        - app/Providers
+
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    
+    ignoreErrors:
+        - '#PHPDoc tag @var#'
+        - '#Access to an undefined property#'
+        - '#Call to an undefined method#'
+        - '#Call to an undefined static method#' 
