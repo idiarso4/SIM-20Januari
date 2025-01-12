@@ -20,6 +20,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Profile;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Navigation\MenuItem;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,24 +30,11 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login(Login::class)
-            ->brandName('Your App Name')
+            ->login()
+            ->brandName('PRESENSI SKANSAPUNG')
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->plugins([
-                FilamentShieldPlugin::make()
-            ])
-            ->navigationGroups([
-                'Master Data',
-                'Akademik',
-                'Settings',
-            ])
-            ->pages([
-                Pages\Dashboard::class,
-            ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -61,9 +49,20 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->plugins([
+                FilamentShieldPlugin::make()
+            ])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->pages([
+                Pages\Dashboard::class,
+            ])
+            ->authGuard('web')
             ->registration()
             ->passwordReset()
             ->emailVerification()
-            ->profile(Profile::class);
+            ->userMenuItems([
+                'logout' => MenuItem::make()->label('Log out')
+            ]);
     }
 }

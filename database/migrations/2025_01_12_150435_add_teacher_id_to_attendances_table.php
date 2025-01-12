@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->unsignedBigInteger('group_id')->nullable()->after('order');
+        Schema::table('attendances', function (Blueprint $table) {
+            //
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('menus', function (Blueprint $table) {
-            $table->dropColumn('group_id');
+        Schema::table('attendances', function (Blueprint $table) {
+            //
         });
     }
 };
