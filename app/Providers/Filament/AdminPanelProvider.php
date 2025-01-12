@@ -19,7 +19,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Profile;
-use App\Filament\Pages\CompleteProfile;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -31,11 +30,17 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(Login::class)
+            ->brandName('Your App Name')
             ->colors([
                 'primary' => Color::Amber,
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
+            ])
+            ->navigationGroups([
+                'Master Data',
+                'Akademik',
+                'Settings',
             ])
             ->pages([
                 Pages\Dashboard::class,

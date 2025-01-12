@@ -45,6 +45,7 @@ return [
         App\Providers\Filament\AdminPanelProvider::class,
         App\Providers\FilamentLoginServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
+        App\Providers\FilamentServiceProvider::class,
     ])->toArray(),
 
     'aliases' => Facade::defaultAliases()->merge([

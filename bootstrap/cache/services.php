@@ -73,9 +73,10 @@
     69 => 'App\\Providers\\Filament\\AdminPanelProvider',
     70 => 'App\\Providers\\FilamentLoginServiceProvider',
     71 => 'App\\Providers\\FortifyServiceProvider',
-    72 => 'App\\Providers\\AppServiceProvider',
-    73 => 'App\\Providers\\FilamentLoginServiceProvider',
-    74 => 'App\\Providers\\Filament\\AdminPanelProvider',
+    72 => 'App\\Providers\\FilamentServiceProvider',
+    73 => 'App\\Providers\\AppServiceProvider',
+    74 => 'App\\Providers\\FilamentLoginServiceProvider',
+    75 => 'App\\Providers\\Filament\\AdminPanelProvider',
   ),
   'eager' => 
   array (
@@ -136,9 +137,10 @@
     54 => 'App\\Providers\\Filament\\AdminPanelProvider',
     55 => 'App\\Providers\\FilamentLoginServiceProvider',
     56 => 'App\\Providers\\FortifyServiceProvider',
-    57 => 'App\\Providers\\AppServiceProvider',
-    58 => 'App\\Providers\\FilamentLoginServiceProvider',
-    59 => 'App\\Providers\\Filament\\AdminPanelProvider',
+    57 => 'App\\Providers\\FilamentServiceProvider',
+    58 => 'App\\Providers\\AppServiceProvider',
+    59 => 'App\\Providers\\FilamentLoginServiceProvider',
+    60 => 'App\\Providers\\Filament\\AdminPanelProvider',
   ),
   'deferred' => 
   array (

@@ -309,6 +309,7 @@ return array(
     'App\\Providers\\AuthServiceProvider' => $baseDir . '/app/Providers/AuthServiceProvider.php',
     'App\\Providers\\EventServiceProvider' => $baseDir . '/app/Providers/EventServiceProvider.php',
     'App\\Providers\\FilamentLoginServiceProvider' => $baseDir . '/app/Providers/FilamentLoginServiceProvider.php',
+    'App\\Providers\\FilamentServiceProvider' => $baseDir . '/app/Providers/FilamentServiceProvider.php',
     'App\\Providers\\Filament\\AdminPanelProvider' => $baseDir . '/app/Providers/Filament/AdminPanelProvider.php',
     'App\\Providers\\FortifyServiceProvider' => $baseDir . '/app/Providers/FortifyServiceProvider.php',
     'App\\Providers\\LivewireServiceProvider' => $baseDir . '/app/Providers/LivewireServiceProvider.php',

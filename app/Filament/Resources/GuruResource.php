@@ -20,6 +20,9 @@ use App\Exports\GuruTemplateExport;
 use Illuminate\Support\Facades\DB;
 use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Facades\Filament;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Collection;
+use Filament\Notifications\Notification;
 
 class GuruResource extends Resource implements HasShieldPermissions
 {
@@ -127,6 +130,49 @@ class GuruResource extends Resource implements HasShieldPermissions
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('assignGuruRole')
+                        ->label('Assign Role Guru (Massal)')
+                        ->icon('heroicon-o-user-plus')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $guruRole = Role::firstOrCreate(['name' => 'guru']);
+                            $count = 0;
+
+                            $records->each(function ($user) use ($guruRole, &$count) {
+                                if (!$user->hasRole('guru')) {
+                                    $user->assignRole($guruRole);
+                                    $count++;
+                                }
+                            });
+
+                            Notification::make()
+                                ->title($count . ' user berhasil ditambahkan role guru')
+                                ->success()
+                                ->send();
+                        }),
+                    Tables\Actions\BulkAction::make('removeGuruRole')
+                        ->label('Hapus Role Guru (Massal)')
+                        ->icon('heroicon-o-user-minus')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            $count = 0;
+
+                            $records->each(function ($user) use (&$count) {
+                                if ($user->hasRole('guru')) {
+                                    $user->removeRole('guru');
+                                    $count++;
+                                }
+                            });
+
+                            Notification::make()
+                                ->title($count . ' user berhasil dihapus role guru')
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ])
             ->headerActions([

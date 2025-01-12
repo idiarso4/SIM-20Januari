@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class RoleAndPermissionSeeder extends Seeder
 {
@@ -13,171 +15,106 @@ class RoleAndPermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // Truncate tables first
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('role_has_permissions')->truncate();
+        DB::table('model_has_roles')->truncate();
+        DB::table('model_has_permissions')->truncate();
+        DB::table('roles')->truncate();
+        DB::table('permissions')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         // Create roles
-        Role::create(['name' => 'super_admin', 'guard_name' => 'web']);
-        Role::create(['name' => 'admin', 'guard_name' => 'web']);
-        Role::create(['name' => 'guru', 'guard_name' => 'web']);
-        Role::create(['name' => 'siswa', 'guard_name' => 'web']);
-        Role::create(['name' => 'waka', 'guard_name' => 'web']);
-        Role::create(['name' => 'guru_pembimbing_pkl', 'guard_name' => 'web']);
-        Role::create(['name' => 'guru_piket', 'guard_name' => 'web']);
-        Role::create(['name' => 'guru_bk', 'guard_name' => 'web']);
+        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        $admin = Role::firstOrCreate(['name' => 'admin']);
+        $guru = Role::firstOrCreate(['name' => 'guru']);
+        $wali = Role::firstOrCreate(['name' => 'wali']);
 
-        // Create permissions
-        $permissions = [
-            'view_users',
-            'create_users',
-            'edit_users',
-            'delete_users',
-            'view_any_student',
-            'view_student',
-            'create_student',
-            'update_student',
-            'delete_student',
-            'import_student',
-            'export_student',
-            'view_any_guru',
-            'view_guru',
-            'create_guru',
-            'update_guru',
-            'delete_guru',
-            'import_guru',
-            'export_guru',
-            // Extracurricular Activity Permissions
-            'view_any_extracurricular_activity',
-            'view_extracurricular_activity',
-            'create_extracurricular_activity',
-            'update_extracurricular_activity',
-            'delete_extracurricular_activity',
-            'export_extracurricular_activity',
-            // Teacher Journal Permissions
-            'view_any_teacher_journal',
-            'view_teacher_journal',
-            'create_teacher_journal',
-            'update_teacher_journal',
-            'delete_teacher_journal',
-            'approve_teacher_journal',
-            // Student Assessment Permissions
-            'view_any_student_assessment',
-            'view_student_assessment',
-            'create_student_assessment',
-            'update_student_assessment',
-            'delete_student_assessment',
-            // Add permission for the complete profile page
-            'page_CompleteProfile',
+        // Create permissions for each resource
+        $resources = [
+            'user',
+            'guru',
+            'siswa',
+            'kelas',
+            'attendance',
+            'mata-pelajaran',
+            'jadwal',
+            'shield',
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-        }
-
-        // Create roles and assign permissions
-        $roles = [
-            'super_admin' => [
-                'view_users',
-                'create_users',
-                'edit_users',
-                'delete_users',
-                'view_any_student',
-                'view_student',
-                'create_student',
-                'update_student',
-                'delete_student',
-                'import_student',
-                'export_student',
-                'view_any_guru',
-                'view_guru',
-                'create_guru',
-                'update_guru',
-                'delete_guru',
-                'import_guru',
-                'export_guru',
-                'view_any_extracurricular_activity',
-                'view_extracurricular_activity',
-                'create_extracurricular_activity',
-                'update_extracurricular_activity',
-                'delete_extracurricular_activity',
-                'export_extracurricular_activity',
-                'view_any_teacher_journal',
-                'view_teacher_journal',
-                'create_teacher_journal',
-                'update_teacher_journal',
-                'delete_teacher_journal',
-                'approve_teacher_journal',
-                'view_any_student_assessment',
-                'view_student_assessment',
-                'create_student_assessment',
-                'update_student_assessment',
-                'delete_student_assessment',
-            ],
-            'admin' => [
-                'view_users',
-                'create_users',
-                'edit_users',
-                'delete_users',
-                'view_any_student',
-                'view_student',
-                'create_student',
-                'update_student',
-                'delete_student',
-                'import_student',
-                'export_student',
-                'view_any_guru',
-                'view_guru',
-                'create_guru',
-                'update_guru',
-                'delete_guru',
-                'import_guru',
-                'export_guru',
-                'view_any_extracurricular_activity',
-                'view_extracurricular_activity',
-                'create_extracurricular_activity',
-                'update_extracurricular_activity',
-                'delete_extracurricular_activity',
-                'export_extracurricular_activity',
-                'view_any_teacher_journal',
-                'view_teacher_journal',
-                'approve_teacher_journal',
-                'view_any_student_assessment',
-                'view_student_assessment',
-            ],
-            'guru' => [
-                'view_users',
-                'view_any_student',
-                'view_student',
-                'view_any_extracurricular_activity',
-                'view_extracurricular_activity',
-                'create_extracurricular_activity',
-                'update_extracurricular_activity',
-                'export_extracurricular_activity',
-                'view_any_teacher_journal',
-                'view_teacher_journal',
-                'create_teacher_journal',
-                'update_teacher_journal',
-                'view_any_student_assessment',
-                'view_student_assessment',
-                'create_student_assessment',
-                'update_student_assessment',
-            ],
-            'siswa' => [
-                'view_any_student',
-                'view_student',
-                'view_any_extracurricular_activity',
-                'view_extracurricular_activity',
-                'view_student_assessment',
-            ],
-            'waka' => [
-                'view_any_teacher_journal',
-                'view_teacher_journal',
-                'approve_teacher_journal',
-                'view_any_student_assessment',
-                'view_student_assessment',
-            ],
+        $actions = [
+            'view_any',
+            'view',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'import',
+            'export',
         ];
 
-        foreach ($roles as $roleName => $rolePermissions) {
-            $role = Role::firstOrCreate(['name' => $roleName]);
-            $role->syncPermissions($rolePermissions);
+        foreach ($resources as $resource) {
+            foreach ($actions as $action) {
+                Permission::firstOrCreate(['name' => $resource.'_'.$action]);
+            }
         }
+
+        // Additional permissions
+        Permission::firstOrCreate(['name' => 'view_admin_panel']);
+        Permission::firstOrCreate(['name' => 'access_filament']);
+        Permission::firstOrCreate(['name' => 'shield']);
+
+        // Assign permissions to roles
+        $superAdmin->givePermissionTo(Permission::all());
+        
+        $admin->givePermissionTo([
+            'view_admin_panel',
+            'access_filament',
+            'shield',
+            'guru_view_any',
+            'guru_view',
+            'guru_create',
+            'guru_update',
+            'guru_delete',
+            'guru_import',
+            'guru_export',
+            'siswa_view_any',
+            'siswa_view',
+            'siswa_create',
+            'siswa_update',
+            'siswa_delete',
+            'siswa_import',
+            'siswa_export',
+            'kelas_view_any',
+            'kelas_view',
+            'kelas_create',
+            'kelas_update',
+            'kelas_delete',
+            'attendance_view_any',
+            'attendance_view',
+        ]);
+
+        $guru->givePermissionTo([
+            'view_admin_panel',
+            'access_filament',
+            'attendance_view_any',
+            'attendance_view',
+            'attendance_create',
+            'attendance_update',
+            'jadwal_view_any',
+            'jadwal_view',
+        ]);
+
+        // Create super admin user if it doesn't exist
+        $user = User::firstOrCreate(
+            ['email' => 'idiarsosimbang@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('admin123YRK'),
+                'email_verified_at' => now(),
+            ]
+        );
+        
+        $user->assignRole($superAdmin);
     }
 }

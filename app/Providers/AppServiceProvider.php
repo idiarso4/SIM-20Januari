@@ -10,6 +10,8 @@ use Illuminate\Routing\Route;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\Facades\Gate;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContract;
+use App\Http\Responses\Auth\LoginResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
+        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
     }
 
     /**
