@@ -6,6 +6,9 @@ use App\Filament\Resources\StudentAssessmentResource;
 use App\Models\Student;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\Action;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentAssessmentDetailExport;
 
 class EditStudentAssessment extends EditRecord
 {
@@ -71,5 +74,20 @@ class EditStudentAssessment extends EditRecord
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('export')
+                ->label('Export Excel')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->action(function () {
+                    return Excel::download(
+                        new StudentAssessmentDetailExport($this->record),
+                        "nilai_{$this->record->classRoom->name}_{$this->record->mata_pelajaran}_{$this->record->tanggal->format('d-m-Y')}.xlsx"
+                    );
+                }),
+        ];
     }
 }

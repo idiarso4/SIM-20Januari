@@ -1,0 +1,99 @@
+PETUNJUK PENGGUNAAN SISTEM INFORMASI AKADEMIK
+============================================
+
+A. MANAJEMEN PENILAIAN SISWA
+---------------------------
+
+1. Input Nilai Baru
+   - Login sebagai guru
+   - Buka menu "Penilaian Siswa"
+   - Klik tombol "+ Create" untuk membuat penilaian baru
+   - Isi informasi penilaian:
+     * Tanggal: Pilih tanggal penilaian
+     * Kelas: Pilih kelas yang akan dinilai
+     * Mata Pelajaran: Isi nama mata pelajaran
+     * Jenis Penilaian: Pilih Sumatif atau Non-Sumatif
+     * Kategori: Pilih Teori atau Praktik
+     * Keterangan: Isi keterangan tambahan (opsional)
+   - Setelah memilih kelas, daftar siswa akan muncul otomatis
+   - Isi nilai untuk setiap siswa (0-100)
+   - Isi keterangan per siswa jika diperlukan
+   - Klik "Create" untuk menyimpan
+
+2. Edit Nilai
+   - Buka menu "Penilaian Siswa"
+   - Cari penilaian yang ingin diedit
+   - Klik tombol "Edit" (ikon pensil)
+   - Ubah informasi yang diperlukan
+   - Nilai siswa yang sudah ada akan tetap terjaga
+   - Klik "Save" untuk menyimpan perubahan
+
+3. Export Nilai
+   - Buka halaman edit penilaian
+   - Klik tombol "Export Excel" di bagian atas
+   - File Excel akan terunduh dengan format:
+     * Judul: DAFTAR NILAI SISWA
+     * Info: Kelas, Mata Pelajaran, Tanggal
+     * Kolom: No, NIS, Nama Siswa, Nilai, Keterangan
+   - File akan tersimpan dengan nama:
+     nilai_[KELAS]_[MATA_PELAJARAN]_[TANGGAL].xlsx
+
+4. Filter dan Pencarian
+   - Gunakan filter tanggal untuk mencari penilaian berdasarkan periode
+   - Gunakan kolom pencarian untuk mencari berdasarkan:
+     * Kelas
+     * Mata Pelajaran
+     * Guru
+   - Filter bisa dikombinasikan untuk pencarian lebih spesifik
+
+B. TIPS PENGGUNAAN
+-----------------
+
+1. Input Nilai
+   - Nilai default adalah 0 jika tidak diisi
+   - Nilai harus dalam rentang 0-100
+   - Keterangan bersifat opsional
+   - Pastikan semua field required terisi
+
+2. Edit Nilai
+   - Perubahan kelas akan memperbarui daftar siswa
+   - Nilai yang sudah ada tidak akan hilang
+   - Bisa menambah/mengubah keterangan
+
+3. Export
+   - Pastikan semua nilai sudah benar sebelum export
+   - File Excel bisa dibuka di Microsoft Excel atau aplikasi sejenis
+   - Format sudah diatur rapi dengan styling otomatis
+
+C. TROUBLESHOOTING
+-----------------
+
+1. Nilai tidak tersimpan:
+   - Pastikan nilai dalam rentang 0-100
+   - Periksa koneksi internet
+   - Pastikan semua field required terisi
+
+2. Export gagal:
+   - Periksa koneksi internet
+   - Pastikan browser mengizinkan download
+   - Coba refresh halaman dan ulangi export
+
+3. Daftar siswa tidak muncul:
+   - Pastikan kelas sudah dipilih
+   - Refresh halaman jika diperlukan
+   - Periksa apakah ada siswa terdaftar di kelas tersebut
+
+D. KEAMANAN
+-----------
+
+1. Akses
+   - Guru hanya bisa melihat dan mengedit nilai yang dia input
+   - Admin bisa melihat semua nilai
+   - Pastikan logout setelah selesai menggunakan sistem
+
+2. Data
+   - Backup dilakukan secara berkala
+   - Nilai yang sudah disimpan tidak bisa dihapus tanpa izin
+   - Perubahan nilai tercatat dalam log sistem
+
+Untuk informasi lebih lanjut atau bantuan, silakan hubungi admin sistem. 

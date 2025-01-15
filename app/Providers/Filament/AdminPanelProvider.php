@@ -23,6 +23,11 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Navigation\MenuItem;
 use App\Filament\Resources\StudentAssessmentResource;
 use App\Filament\Resources\AssessmentResource;
+use App\Filament\Widgets\AssessmentStatsOverview;
+use App\Filament\Widgets\LatestAssessments;
+use App\Filament\Widgets\RecentActivitiesWidget;
+use App\Filament\Widgets\StudentAssessmentChart;
+use App\Filament\Widgets\ClassRoomStatsWidget;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -69,6 +74,13 @@ class AdminPanelProvider extends PanelProvider
             ->emailVerification()
             ->userMenuItems([
                 'logout' => MenuItem::make()->label('Log out')
+            ])
+            ->widgets([
+                ClassRoomStatsWidget::class,
+                AssessmentStatsOverview::class,
+                LatestAssessments::class,
+                RecentActivitiesWidget::class,
+                StudentAssessmentChart::class,
             ]);
     }
 }
