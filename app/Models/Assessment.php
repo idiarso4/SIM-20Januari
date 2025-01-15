@@ -8,29 +8,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Assessment extends Model
 {
     protected $fillable = [
-        'student_id',
         'class_room_id',
-        'type',
-        'subject',
-        'assessment_name',
-        'date',
-        'score',
-        'description',
-        'notes',
+        'guru_id',
+        'mata_pelajaran',
+        'kompetensi_dasar',
+        'jenis_penilaian',
+        'bobot',
+        'tanggal',
+        'keterangan'
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'score' => 'float',
+        'tanggal' => 'date',
+        'bobot' => 'integer'
     ];
-
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(Student::class);
-    }
 
     public function classRoom(): BelongsTo
     {
         return $this->belongsTo(ClassRoom::class);
+    }
+
+    public function guru(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'guru_id');
     }
 } 

@@ -16,4 +16,4 @@ class ListStudentAssessments extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
-} 
+}

@@ -2,152 +2,76 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\AssessmentResource\Pages;
 use App\Models\Assessment;
-use App\Models\ClassRoom;
-use App\Models\Student;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\AssessmentResource\Pages;
-use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AssessmentExport;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Grid;
 
 class AssessmentResource extends Resource
 {
     protected static ?string $model = Assessment::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+    protected static ?string $navigationLabel = 'Penilaian';
     protected static ?string $navigationGroup = 'Akademik';
-    protected static ?int $navigationSort = 3;
-    protected static ?string $modelLabel = 'Penilaian';
-    protected static ?string $pluralModelLabel = 'Penilaian';
-    protected static ?string $navigationLabel = 'Manajemen Penilaian';
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        $query = parent::getEloquentQuery();
-
-        if (auth()->user()->hasRole('guru')) {
-            $query->where('teacher_id', auth()->id());
-        }
-
-        return $query;
-    }
+    protected static ?int $navigationSort = 2;
+    protected static ?string $slug = 'assessments';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi Kelas')
+                Card::make()
                     ->schema([
-                        Forms\Components\Select::make('class_room_id')
-                            ->label('Kelas')
-                            ->relationship('classRoom', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                if ($state) {
-                                    $students = Student::where('class_room_id', $state)
-                                        ->orderBy('nama_lengkap')
-                                        ->get()
-                                        ->map(function ($student) {
-                                            return [
-                                                'student_id' => $student->id,
-                                                'score' => null,
-                                                'status' => 'hadir'
-                                            ];
-                                        })
-                                        ->toArray();
-                                    $set('student_scores', $students);
-                                }
-                            }),
-                        Forms\Components\Hidden::make('teacher_id')
-                            ->default(auth()->id()),
-                    ])->columns(2),
-                
-                Forms\Components\Section::make('Detail Penilaian')
-                    ->schema([
-                        Forms\Components\Select::make('type')
-                            ->label('Jenis Penilaian')
-                            ->options([
-                                'sumatif' => 'Sumatif',
-                                'non_sumatif' => 'Non-Sumatif',
-                            ])
-                            ->required(),
-                        Forms\Components\TextInput::make('subject')
-                            ->label('Mata Pelajaran')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('assessment_name')
-                            ->label('Nama Penilaian')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\DatePicker::make('date')
-                            ->label('Tanggal')
-                            ->required(),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Nilai Siswa')
-                    ->schema([
-                        Forms\Components\Repeater::make('student_scores')
-                            ->label('Daftar Nilai Siswa')
+                        Grid::make(2)
                             ->schema([
-                                Forms\Components\Hidden::make('student_id'),
-                                Forms\Components\TextInput::make('nama_lengkap')
-                                    ->label('Siswa')
-                                    ->disabled()
-                                    ->dehydrated(false),
-                                Forms\Components\Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'hadir' => 'Hadir',
-                                        'sakit' => 'Sakit',
-                                        'izin' => 'Izin',
-                                        'alpha' => 'Alpha',
-                                    ])
-                                    ->default('hadir')
+                                Forms\Components\DatePicker::make('tanggal')
                                     ->required()
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                        if ($state !== 'hadir') {
-                                            $set('score', null);
-                                        }
-                                    }),
-                                Forms\Components\TextInput::make('score')
-                                    ->label('Nilai')
+                                    ->label('Tanggal')
+                                    ->rules(['required', 'date']),
+                                Forms\Components\Select::make('class_room_id')
+                                    ->relationship('classRoom', 'name')
+                                    ->label('Kelas')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->rules(['required', 'exists:class_rooms,id']),
+                                Forms\Components\TextInput::make('mata_pelajaran')
+                                    ->required()
+                                    ->label('Mata Pelajaran')
+                                    ->rules(['required', 'string', 'max:255']),
+                                Forms\Components\TextInput::make('kompetensi_dasar')
+                                    ->required()
+                                    ->label('Kompetensi Dasar')
+                                    ->rules(['required', 'string', 'max:255']),
+                                Forms\Components\TextInput::make('jenis_penilaian')
+                                    ->required()
+                                    ->label('Jenis Penilaian')
+                                    ->rules(['required', 'string', 'max:255']),
+                                Forms\Components\TextInput::make('bobot')
                                     ->numeric()
-                                    ->minValue(0)
+                                    ->default(1)
+                                    ->minValue(1)
                                     ->maxValue(100)
-                                    ->hidden(fn (Forms\Get $get): bool => $get('status') !== 'hadir'),
-                            ])
-                            ->columns(3)
-                            ->defaultItems(0)
-                            ->reorderable(false)
-                            ->addable(false)
-                            ->deletable(false),
-                    ]),
-
-                Forms\Components\Section::make('Catatan')
-                    ->schema([
-                        Forms\Components\Textarea::make('description')
-                            ->label('Deskripsi')
-                            ->maxLength(65535),
-                        Forms\Components\Textarea::make('notes')
-                            ->label('Catatan')
-                            ->maxLength(65535),
-                    ])->columns(2),
+                                    ->required()
+                                    ->label('Bobot')
+                                    ->rules(['required', 'integer', 'min:1', 'max:100']),
+                            ]),
+                        Forms\Components\Textarea::make('keterangan')
+                            ->label('Keterangan')
+                            ->placeholder('Keterangan tambahan (opsional)')
+                            ->columnSpanFull()
+                            ->rules(['nullable', 'string']),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -155,74 +79,111 @@ class AssessmentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('tanggal')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('classRoom.name')
                     ->label('Kelas')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('teacher.name')
-                    ->label('Guru')
-                    ->searchable()
                     ->sortable()
-                    ->toggleable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->label('Jenis Penilaian')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'sumatif' => 'success',
-                        'non_sumatif' => 'info',
-                    }),
-                Tables\Columns\TextColumn::make('subject')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('mata_pelajaran')
                     ->label('Mata Pelajaran')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('assessment_name')
-                    ->label('Nama Penilaian')
+                Tables\Columns\TextColumn::make('kompetensi_dasar')
+                    ->label('Kompetensi Dasar')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('date')
-                    ->label('Tanggal')
-                    ->date()
-                    ->sortable(),
-            ])
-            ->defaultSort('date', 'desc')
-            ->filters([
-                Tables\Filters\SelectFilter::make('type')
+                Tables\Columns\TextColumn::make('jenis_penilaian')
                     ->label('Jenis Penilaian')
-                    ->options([
-                        'sumatif' => 'Sumatif',
-                        'non_sumatif' => 'Non-Sumatif',
-                    ]),
-                Tables\Filters\SelectFilter::make('class_room_id')
-                    ->label('Kelas')
-                    ->relationship('classRoom', 'name'),
-                Tables\Filters\SelectFilter::make('teacher_id')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('bobot')
+                    ->label('Bobot')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('guru.name')
                     ->label('Guru')
-                    ->relationship('teacher', 'name')
-                    ->visible(fn () => auth()->user()->hasRole(['super_admin', 'admin'])),
+                    ->sortable()
+                    ->searchable(),
+            ])
+            ->filters([
+                Tables\Filters\Filter::make('tanggal')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('Dari Tanggal'),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal', '<=', $date),
+                            );
+                    }),
+                Tables\Filters\SelectFilter::make('class_room')
+                    ->relationship('classRoom', 'name')
+                    ->label('Kelas')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('guru')
+                    ->relationship('guru', 'name')
+                    ->label('Guru')
+                    ->searchable()
+                    ->preload()
+                    ->visible(!auth()->user()->hasRole('guru')),
             ])
             ->actions([
-                Tables\Actions\Action::make('view_scores')
-                    ->label('Lihat Nilai')
-                    ->icon('heroicon-o-eye')
-                    ->url(fn (Assessment $record): string => route('filament.admin.resources.assessments.view-scores', ['record' => $record->id]))
-                    ->openUrlInNewTab(),
-                EditAction::make(),
-                DeleteAction::make(),
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('export')
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('export')
                     ->label('Export Excel')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->action(fn ($records) => redirect()->route('assessment.export', ['ids' => $records->pluck('id')->toArray()]))
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(function ($livewire) {
+                        return Excel::download(
+                            new AssessmentExport(
+                                static::getEloquentQuery()
+                            ),
+                            'penilaian.xlsx'
+                        );
+                    }),
             ]);
     }
-
+    
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+    
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListAssessments::route('/'),
             'create' => Pages\CreateAssessment::route('/create'),
             'edit' => Pages\EditAssessment::route('/{record}/edit'),
-            'view-scores' => Pages\ViewAssessmentScores::route('/{record}/scores'),
         ];
+    }    
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()->hasRole('guru')) {
+            $query->where('guru_id', auth()->id());
+        }
+
+        return $query;
     }
 } 

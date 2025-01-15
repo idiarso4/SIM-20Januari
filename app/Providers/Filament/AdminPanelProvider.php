@@ -21,6 +21,8 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Profile;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Navigation\MenuItem;
+use App\Filament\Resources\StudentAssessmentResource;
+use App\Filament\Resources\AssessmentResource;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -53,6 +55,10 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make()
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->resources([
+                StudentAssessmentResource::class,
+                AssessmentResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Pages\Dashboard::class,

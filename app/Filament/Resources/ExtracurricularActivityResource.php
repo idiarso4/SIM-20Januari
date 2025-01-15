@@ -4,12 +4,16 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExtracurricularActivityResource\Pages;
 use App\Models\ExtracurricularActivity;
+use App\Models\Student;
+use App\Models\ExtracurricularActivityAttendance;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ExtracurricularActivityExport;
 
 class ExtracurricularActivityResource extends Resource
 {
@@ -28,52 +32,71 @@ class ExtracurricularActivityResource extends Resource
             $query->where('guru_id', auth()->id());
         }
 
-        return $query;
+        return $query->with('attendances');
     }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\DatePicker::make('tanggal')
+                    ->required()
+                    ->label('Tanggal'),
                 Forms\Components\Select::make('extracurricular_id')
                     ->relationship('extracurricular', 'nama')
+                    ->label('Ekstrakurikuler')
                     ->required()
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Forms\Set $set) {
                         if ($state) {
-                            $extracurricular = \App\Models\Extracurricular::with('guru')->find($state);
-                            if ($extracurricular && $extracurricular->guru->isNotEmpty()) {
-                                $set('guru_id', auth()->id());
+                            $students = Student::whereHas('extracurriculars', function ($query) use ($state) {
+                                $query->where('extracurricular_id', $state);
+                            })->get();
+
+                            $attendances = [];
+                            foreach ($students as $student) {
+                                $attendances[] = [
+                                    'student_id' => $student->id,
+                                    'nama_siswa' => $student->nama_lengkap,
+                                    'nis' => $student->nis,
+                                    'status' => ExtracurricularActivityAttendance::STATUS_HADIR,
+                                    'keterangan' => null,
+                                ];
                             }
+                            $set('attendances', $attendances);
                         }
-                    })
-                    ->label('Ekstrakurikuler'),
-                Forms\Components\Hidden::make('guru_id')
-                    ->default(auth()->id()),
-                Forms\Components\DatePicker::make('tanggal')
-                    ->required(),
-                Forms\Components\TimePicker::make('jam_mulai')
+                    }),
+                Forms\Components\Textarea::make('materi')
                     ->required()
-                    ->seconds(false),
-                Forms\Components\TimePicker::make('jam_selesai')
-                    ->required()
-                    ->seconds(false),
-                Forms\Components\RichEditor::make('materi')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\RichEditor::make('keterangan')
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'hadir' => 'Hadir',
-                        'izin' => 'Izin',
-                        'sakit' => 'Sakit',
-                        'alpha' => 'Alpha',
-                    ])
-                    ->required()
-                    ->default('hadir'),
-                Forms\Components\View::make('filament.forms.components.extracurricular-attendance-table')
-                    ->columnSpanFull(),
+                    ->label('Materi')
+                    ->placeholder('Materi kegiatan ekstrakurikuler'),
+                Forms\Components\Section::make('Daftar Hadir Anggota')
+                    ->schema([
+                        Forms\Components\Repeater::make('attendances')
+                            ->schema([
+                                Forms\Components\Hidden::make('student_id'),
+                                Forms\Components\TextInput::make('nis')
+                                    ->label('NIS')
+                                    ->disabled(),
+                                Forms\Components\TextInput::make('nama_siswa')
+                                    ->label('Nama Siswa')
+                                    ->disabled(),
+                                Forms\Components\Select::make('status')
+                                    ->label('Status')
+                                    ->options(ExtracurricularActivityAttendance::STATUS_OPTIONS)
+                                    ->required(),
+                                Forms\Components\TextInput::make('keterangan')
+                                    ->label('Keterangan')
+                                    ->placeholder('Opsional'),
+                            ])
+                            ->columns(5)
+                            ->defaultItems(0)
+                            ->disableItemCreation()
+                            ->disableItemDeletion()
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 
@@ -81,31 +104,41 @@ class ExtracurricularActivityResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('guru.name')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('classRoom.name')
-                    ->sortable()
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('jam_mulai')
-                    ->time()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('jam_selesai')
-                    ->time()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
+                    ->date('d/m/Y')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('extracurricular.nama')
+                    ->label('Ekstrakurikuler')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('materi')
+                    ->label('Materi')
+                    ->limit(50)
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('guru.name')
+                    ->label('Pembina')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('attendance_summary')
+                    ->label('Kehadiran')
+                    ->getStateUsing(function ($record) {
+                        $summary = [
+                            ExtracurricularActivityAttendance::STATUS_HADIR => 0,
+                            ExtracurricularActivityAttendance::STATUS_SAKIT => 0,
+                            ExtracurricularActivityAttendance::STATUS_IZIN => 0,
+                            ExtracurricularActivityAttendance::STATUS_ALPHA => 0
+                        ];
+                        
+                        foreach ($record->attendances as $attendance) {
+                            $summary[$attendance->status]++;
+                        }
+                        
+                        return "H:{$summary[ExtracurricularActivityAttendance::STATUS_HADIR]} " .
+                               "S:{$summary[ExtracurricularActivityAttendance::STATUS_SAKIT]} " .
+                               "I:{$summary[ExtracurricularActivityAttendance::STATUS_IZIN]} " .
+                               "A:{$summary[ExtracurricularActivityAttendance::STATUS_ALPHA]}";
+                    }),
             ])
             ->filters([
                 Tables\Filters\Filter::make('tanggal')
@@ -146,6 +179,19 @@ class ExtracurricularActivityResource extends Resource
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Hapus Terpilih'),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('export')
+                    ->label('Export Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(function ($livewire) {
+                        return Excel::download(
+                            new ExtracurricularActivityExport(
+                                static::getEloquentQuery()
+                            ),
+                            'kegiatan-ekstrakurikuler.xlsx'
+                        );
+                    }),
             ]);
     }
     

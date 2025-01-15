@@ -142,11 +142,7 @@ class AttendanceResource extends Resource
         $query = parent::getEloquentQuery();
 
         if (Auth::user()->hasRole('guru')) {
-            return $query->where('teacher_id', Auth::user()->id);
-        }
-
-        if (Auth::user()->hasRole('wali')) {
-            return $query->where('homeroom_teacher_id', Auth::user()->id);
+            return $query->where('user_id', Auth::user()->id);
         }
 
         return $query;
@@ -156,8 +152,7 @@ class AttendanceResource extends Resource
     {
         return match (true) {
             Auth::user()->hasRole('admin') => static::getModel()::count(),
-            Auth::user()->hasRole('guru') => static::getModel()::where('teacher_id', Auth::user()->id)->count(),
-            Auth::user()->hasRole('wali') => static::getModel()::where('homeroom_teacher_id', Auth::user()->id)->count(),
+            Auth::user()->hasRole('guru') => static::getModel()::where('user_id', Auth::user()->id)->count(),
             default => null,
         };
     }

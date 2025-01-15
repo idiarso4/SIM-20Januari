@@ -3,39 +3,25 @@
 namespace App\Filament\Resources\TeachingActivityResource\Pages;
 
 use App\Filament\Resources\TeachingActivityResource;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\TeachingActivity;
 
 class EditTeachingActivity extends EditRecord
 {
     protected static string $resource = TeachingActivityResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make()
-                ->before(function (Model $record) {
-                    // Cek apakah ada absensi yang terkait
-                    if ($record->attendances()->count() > 0) {
-                        // Konfirmasi penghapusan data terkait
-                        return Actions\DeleteAction::make()
-                            ->requiresConfirmation();
-                    }
-                }),
-        ];
-    }
-
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if (auth()->user()->hasRole('guru')) {
-            $data['guru_id'] = auth()->id();
-        }
-        return $data;
-    }
+        // Cek duplikasi saat edit, kecuali untuk record yang sedang diedit
+        $query = TeachingActivity::where('guru_id', auth()->id())
+            ->where('tanggal', $data['tanggal'])
+            ->where('jam_ke_mulai', $data['jam_ke_mulai'])
+            ->where('id', '!=', $this->record->id);
 
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
+        if ($query->exists()) {
+            throw new \Exception('Jadwal mengajar untuk tanggal dan jam ini sudah ada.');
+        }
+
+        return $data;
     }
 } 

@@ -12,15 +12,27 @@ class CreateExtracurricularActivity extends CreateRecord
 
     protected function afterCreate(): void
     {
-        Notification::make()
-            ->success()
-            ->title('Data kegiatan ekstrakurikuler disimpan')
-            ->body('Data kegiatan ekstrakurikuler berhasil disimpan.')
-            ->send();
+        $attendances = collect($this->data['attendances'] ?? []);
+        
+        if ($attendances->isNotEmpty()) {
+            $attendances->each(function ($attendance) {
+                $this->record->attendances()->create([
+                    'student_id' => $attendance['student_id'],
+                    'status' => $attendance['status'],
+                    'keterangan' => $attendance['keterangan'],
+                ]);
+            });
+        }
     }
 
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['guru_id'] = auth()->id();
+        return $data;
     }
 } 

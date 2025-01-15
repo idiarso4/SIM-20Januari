@@ -4,39 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExtracurricularActivity extends Model
 {
     protected $fillable = [
-        'extracurricular_id',
-        'guru_id',
-        'class_room_id',
         'tanggal',
-        'jam_mulai',
-        'jam_selesai',
+        'extracurricular_id',
         'materi',
-        'keterangan',
-        'status',
+        'guru_id'
     ];
 
     protected $casts = [
         'tanggal' => 'date',
-        'jam_mulai' => 'datetime:H:i',
-        'jam_selesai' => 'datetime:H:i',
     ];
+
+    public function extracurricular(): BelongsTo
+    {
+        return $this->belongsTo(Extracurricular::class);
+    }
 
     public function guru(): BelongsTo
     {
         return $this->belongsTo(User::class, 'guru_id');
     }
 
-    public function classRoom(): BelongsTo
+    public function attendances(): HasMany
     {
-        return $this->belongsTo(ClassRoom::class);
-    }
-
-    public function extracurricular(): BelongsTo
-    {
-        return $this->belongsTo(Extracurricular::class);
+        return $this->hasMany(ExtracurricularActivityAttendance::class);
     }
 } 

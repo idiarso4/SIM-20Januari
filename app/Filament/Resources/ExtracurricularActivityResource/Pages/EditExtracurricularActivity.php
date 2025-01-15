@@ -12,28 +12,38 @@ class EditExtracurricularActivity extends EditRecord
 {
     protected static string $resource = ExtracurricularActivityResource::class;
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['attendances'] = $this->record->attendances->map(function ($attendance) {
+            return [
+                'student_id' => $attendance->student_id,
+                'nama_siswa' => $attendance->student->nama_lengkap,
+                'nis' => $attendance->student->nis,
+                'status' => $attendance->status,
+                'keterangan' => $attendance->keterangan,
+            ];
+        })->toArray();
+
+        return $data;
+    }
+
     protected function afterSave(): void
     {
-        $attendanceData = $this->data['attendance_data'] ?? [];
+        $attendances = collect($this->data['attendances'] ?? []);
         
-        foreach ($attendanceData as $data) {
-            ExtracurricularAttendance::updateOrCreate(
-                [
-                    'extracurricular_activity_id' => $this->record->id,
-                    'student_id' => $data['student_id'],
-                ],
-                [
-                    'status' => $data['status'],
-                    'keterangan' => $data['keterangan'],
-                ]
-            );
+        if ($attendances->isNotEmpty()) {
+            // Hapus absensi yang ada
+            $this->record->attendances()->delete();
+            
+            // Buat absensi baru
+            $attendances->each(function ($attendance) {
+                $this->record->attendances()->create([
+                    'student_id' => $attendance['student_id'],
+                    'status' => $attendance['status'],
+                    'keterangan' => $attendance['keterangan'],
+                ]);
+            });
         }
-
-        Notification::make()
-            ->success()
-            ->title('Data kegiatan ekstrakurikuler diperbarui')
-            ->body('Data kegiatan ekstrakurikuler berhasil diperbarui.')
-            ->send();
     }
 
     protected function getRedirectUrl(): string

@@ -3,46 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Extracurricular extends Model
 {
     protected $fillable = [
         'nama',
-        'guru_id',
-        'hari',
-        'jam_mulai',
-        'jam_selesai',
-        'deskripsi',
-        'status',
-        'tempat',
+        'description'
     ];
 
-    protected $casts = [
-        'jam_mulai' => 'datetime:H:i',
-        'jam_selesai' => 'datetime:H:i',
-        'status' => 'string',
-    ];
-
-    public function guru(): BelongsToMany
+    public function students(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'extracurricular_teacher')
-            ->whereHas('roles', function($query) {
-                $query->where('name', 'guru');
-            })
-            ->withTimestamps();
+        return $this->belongsToMany(Student::class);
     }
 
     public function activities(): HasMany
     {
         return $this->hasMany(ExtracurricularActivity::class);
-    }
-
-    public function students(): BelongsToMany
-    {
-        return $this->belongsToMany(Student::class, 'extracurricular_student')
-            ->withTimestamps();
     }
 } 

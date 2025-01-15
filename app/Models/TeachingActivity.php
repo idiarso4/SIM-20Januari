@@ -88,4 +88,22 @@ class TeachingActivity extends Model
         
         return $csv;
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            // Cek duplikasi hanya untuk record lain
+            $exists = static::where('guru_id', $model->guru_id)
+                ->where('tanggal', $model->tanggal)
+                ->where('jam_ke_mulai', $model->jam_ke_mulai)
+                ->where('id', '!=', $model->id)
+                ->exists();
+
+            if ($exists) {
+                throw new \Exception('Jadwal mengajar untuk guru, tanggal dan jam ini sudah ada.');
+            }
+        });
+    }
 } 

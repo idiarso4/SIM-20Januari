@@ -103,6 +103,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.students.export');
     Route::get('admin/class-rooms/export', [App\Http\Controllers\Admin\ClassRoomController::class, 'export'])
         ->name('admin.class-rooms.export');
+    Route::post('admin/student-assessments', [StudentAssessmentController::class, 'store'])
+        ->name('admin.student-assessments.store');
 });
 
 Route::get('backups/{filename}/download', [BackupController::class, 'download'])
@@ -116,10 +118,12 @@ Route::name('filament.admin.pages.')
         Route::get('complete-profile', CompleteProfile::class)->name('complete-profile');
     });
 
-Route::name('filament.admin.resources.student-assessments.')
-    ->prefix('admin/student-assessments')
-    ->middleware(['auth'])
-    ->group(function () {
-        Route::get('/create', [StudentAssessmentController::class, 'create'])->name('create');
-        // ... route lainnya
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/', function () {
+        return redirect('/admin');
     });
+});
