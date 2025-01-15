@@ -4,13 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TeacherJournalResource\Pages;
 use App\Models\TeacherJournal;
+use App\Models\TeachingActivity;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
 
 class TeacherJournalResource extends Resource
 {
@@ -18,11 +19,11 @@ class TeacherJournalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
     
-    protected static ?string $modelLabel = 'Agenda Harian Guru';
+    protected static ?string $modelLabel = 'Jurnal Guru';
     
-    protected static ?string $pluralModelLabel = 'Agenda Harian Guru';
+    protected static ?string $pluralModelLabel = 'Jurnal Guru';
     
-    protected static ?string $navigationLabel = 'Agenda Harian Guru';
+    protected static ?string $navigationLabel = 'Jurnal Guru';
     
     protected static ?string $navigationGroup = 'Akademik';
 
@@ -30,71 +31,66 @@ class TeacherJournalResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Hidden::make('guru_id')
-                    ->default(fn () => auth()->id())
-                    ->disabled(fn () => !auth()->user()->hasRole('super_admin'))
-                    ->required(),
-                Forms\Components\Select::make('class_room_id')
-                    ->relationship('classRoom', 'name')
-                    ->required()
-                    ->searchable(),
-                Forms\Components\TextInput::make('mata_pelajaran')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('materi')
-                    ->required()
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
                 Forms\Components\DatePicker::make('tanggal')
-                    ->required(),
-                Forms\Components\TextInput::make('jam_ke_mulai')
                     ->required()
-                    ->numeric()
-                    ->minValue(1)
-                    ->maxValue(12),
-                Forms\Components\TextInput::make('jam_ke_selesai')
-                    ->required()
-                    ->numeric()
-                    ->minValue(1)
-                    ->maxValue(12),
-                Forms\Components\TimePicker::make('jam_mulai')
-                    ->required(),
-                Forms\Components\TimePicker::make('jam_selesai')
-                    ->required(),
-                Forms\Components\Textarea::make('media_dan_alat')
-                    ->required()
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('important_notes')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('kegiatan')
-                    ->required()
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('hasil')
-                    ->required()
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('hambatan')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('pemecahan_masalah')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'draft' => 'Draft',
-                        'submitted' => 'Submitted',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
+                    ->label('Tanggal')
+                    ->live()
+                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                        if ($state) {
+                            $set('teaching_activities', 
+                                TeachingActivity::where('guru_id', auth()->id())
+                                    ->where('tanggal', $state)
+                                    ->get()
+                            );
+                        }
+                    }),
+                Forms\Components\Hidden::make('guru_id')
+                    ->default(fn () => auth()->id()),
+                Forms\Components\Section::make('Kegiatan Hari Ini')
+                    ->schema([
+                        Forms\Components\Placeholder::make('teaching_activities')
+                            ->content(function ($state) {
+                                if (empty($state)) {
+                                    return 'Pilih tanggal untuk melihat kegiatan';
+                                }
+
+                                $activities = collect($state);
+                                $html = '<div class="space-y-4">';
+                                foreach ($activities as $activity) {
+                                    $html .= "<div class='p-4 bg-gray-100 rounded-lg'>";
+                                    $html .= "<div class='font-medium'>{$activity->mata_pelajaran}</div>";
+                                    $html .= "<div>Kelas: {$activity->kelas->name}</div>";
+                                    $html .= "<div>Jam ke: {$activity->jam_ke_mulai} - {$activity->jam_ke_selesai}</div>";
+                                    $html .= "<div>Materi: {$activity->materi}</div>";
+                                    $html .= "<div>Media: {$activity->media_dan_alat}</div>";
+                                    $html .= "</div>";
+                                }
+                                $html .= '</div>';
+                                return new \Illuminate\Support\HtmlString($html);
+                            })
+                            ->columnSpanFull(),
                     ])
-                    ->default('draft')
-                    ->required(),
-                Forms\Components\Textarea::make('catatan_waka')
-                    ->maxLength(65535)
-                    ->columnSpanFull()
-                    ->visible(fn () => auth()->user()->hasRole('waka')),
+                    ->collapsible(),
+                Forms\Components\Section::make('Refleksi Pembelajaran')
+                    ->schema([
+                        Forms\Components\Textarea::make('kegiatan')
+                            ->label('Kegiatan yang Telah Dilakukan')
+                            ->required()
+                            ->placeholder('Jelaskan kegiatan pembelajaran yang telah dilakukan hari ini'),
+                        Forms\Components\Textarea::make('hasil')
+                            ->label('Hasil yang Dicapai')
+                            ->required()
+                            ->placeholder('Jelaskan hasil pembelajaran yang dicapai'),
+                        Forms\Components\Textarea::make('hambatan')
+                            ->label('Hambatan yang Ditemui')
+                            ->required()
+                            ->placeholder('Jelaskan hambatan atau kendala dalam pembelajaran'),
+                        Forms\Components\Textarea::make('pemecahan_masalah')
+                            ->label('Pemecahan Masalah')
+                            ->required()
+                            ->placeholder('Jelaskan bagaimana mengatasi hambatan tersebut'),
+                    ])
+                    ->columns(1),
             ]);
     }
 
@@ -102,58 +98,51 @@ class TeacherJournalResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('guru.name')
+                Tables\Columns\TextColumn::make('tanggal')
+                    ->date('d/m/Y')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('classRoom.name')
+                Tables\Columns\TextColumn::make('guru.name')
+                    ->label('Guru')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('mata_pelajaran')
+                    ->label('Mata Pelajaran')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('materi')
+                    ->label('Materi')
                     ->limit(50),
-                Tables\Columns\TextColumn::make('tanggal')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('jam_ke_mulai'),
-                Tables\Columns\TextColumn::make('jam_ke_selesai'),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'draft' => 'gray',
-                        'submitted' => 'warning',
-                        'approved' => 'success',
-                        'rejected' => 'danger',
-                    }),
+                Tables\Columns\TextColumn::make('jam_mulai')
+                    ->label('Jam Mulai')
+                    ->time(),
+                Tables\Columns\TextColumn::make('jam_selesai')
+                    ->label('Jam Selesai')
+                    ->time(),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('tanggal')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('Dari Tanggal'),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('Sampai Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal', '<=', $date),
+                            );
+                    }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->visible(fn (TeacherJournal $record): bool => 
-                        auth()->user()->hasRole('super_admin') || 
-                        auth()->id() === $record->guru_id
-                    ),
-                Tables\Actions\DeleteAction::make()
-                    ->visible(fn (TeacherJournal $record): bool => 
-                        auth()->user()->hasRole('super_admin') || 
-                        auth()->id() === $record->guru_id
-                    ),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn (): bool => auth()->user()->hasRole('super_admin')),
-                ]),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
