@@ -10,6 +10,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 
 class TeachingActivityResource extends Resource
 {
@@ -32,11 +35,6 @@ class TeachingActivityResource extends Resource
                 Forms\Components\DatePicker::make('tanggal')
                     ->required()
                     ->label('Tanggal'),
-                Forms\Components\Hidden::make('guru_id')
-                    ->default(fn () => auth()->id())
-                    ->disabled()
-                    ->dehydrated(true)
-                    ->required(),
                 Forms\Components\Select::make('kelas_id')
                     ->relationship('kelas', 'name')
                     ->label('Kelas')
@@ -44,30 +42,19 @@ class TeachingActivityResource extends Resource
                     ->searchable()
                     ->preload()
                     ->live()
-                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                    ->afterStateUpdated(function ($state, Forms\Set $set, $record) {
                         if ($state) {
-                            $students = \App\Models\Student::where('class_room_id', $state)->get();
-                            $attendances = [];
-                            foreach ($students as $student) {
-                                $attendances[] = [
-                                    'student_id' => $student->id,
-                                    'nama_siswa' => $student->nama_lengkap,
-                                    'nis' => $student->nis,
-                                    'status' => 'Hadir',
-                                    'keterangan' => null,
-                                ];
-                            }
-                            $set('attendances', $attendances);
+                            static::loadStudentAttendances($state, $set, $record);
+                        }
+                    })
+                    ->afterStateHydrated(function ($state, Forms\Set $set, $record) {
+                        if ($state) {
+                            static::loadStudentAttendances($state, $set, $record);
                         }
                     }),
                 Forms\Components\TextInput::make('mata_pelajaran')
                     ->required()
-                    ->label('Mata Pelajaran')
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('materi')
-                    ->required()
-                    ->label('Materi')
-                    ->maxLength(65535),
+                    ->label('Mata Pelajaran'),
                 Forms\Components\Grid::make(2)
                     ->schema([
                         Forms\Components\TextInput::make('jam_ke_mulai')
@@ -83,6 +70,18 @@ class TeachingActivityResource extends Resource
                             ->minValue(1)
                             ->maxValue(12),
                     ]),
+                Forms\Components\Select::make('guru_id')
+                    ->relationship('guru', 'name')
+                    ->label('Guru')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->default(fn () => auth()->id())
+                    ->disabled(fn () => !auth()->user()->hasRole('admin')),
+                Forms\Components\Textarea::make('materi')
+                    ->required()
+                    ->label('Materi')
+                    ->maxLength(65535),
                 Forms\Components\Textarea::make('media_dan_alat')
                     ->required()
                     ->label('Media dan Alat yang Digunakan')
@@ -123,6 +122,52 @@ class TeachingActivityResource extends Resource
                     ->placeholder('Masukkan catatan kejadian penting selama pembelajaran (opsional)')
                     ->maxLength(65535),
             ]);
+    }
+
+    private static function loadStudentAttendances($classId, Forms\Set $set, $record = null)
+    {
+        // Debug: Cek nilai classId
+        \Log::info('ClassId: ' . $classId);
+        
+        $students = \App\Models\Student::where('class_room_id', $classId)
+            ->orderBy('nama_lengkap')
+            ->get();
+        
+        // Debug: Cek jumlah siswa yang ditemukan
+        \Log::info('Jumlah siswa: ' . $students->count());
+        \Log::info('Data siswa: ' . $students->toJson());
+        
+        // Jika ini mode edit, ambil data kehadiran yang ada
+        $existingAttendances = $record 
+            ? collect($record->attendances)->keyBy('student_id') 
+            : collect();
+        
+        $attendances = [];
+        foreach ($students as $student) {
+            // Debug: Cek data setiap siswa
+            \Log::info('Processing student: ' . $student->toJson());
+            
+            if ($existingAttendances->has($student->id)) {
+                $attendance = $existingAttendances[$student->id];
+                // Pastikan nama siswa dan NIS selalu diisi
+                $attendance['nama_siswa'] = $student->nama_lengkap;
+                $attendance['nis'] = $student->nis;
+                $attendances[] = $attendance;
+            } else {
+                $attendances[] = [
+                    'student_id' => $student->id,
+                    'nama_siswa' => $student->nama_lengkap,
+                    'nis' => $student->nis,
+                    'status' => 'Hadir',
+                    'keterangan' => null,
+                ];
+            }
+        }
+        
+        // Debug: Cek data final
+        \Log::info('Final attendances: ' . json_encode($attendances));
+        
+        $set('attendances', $attendances);
     }
 
     public static function table(Table $table): Table

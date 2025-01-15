@@ -25,7 +25,7 @@ class Student extends Model
 
     public function classRoom(): BelongsTo
     {
-        return $this->belongsTo(ClassRoom::class);
+        return $this->belongsTo(ClassRoom::class, 'class_room_id');
     }
 
     public function extracurriculars(): BelongsToMany
