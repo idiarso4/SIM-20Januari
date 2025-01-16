@@ -10,7 +10,13 @@ class Extracurricular extends Model
 {
     protected $fillable = [
         'nama',
-        'description'
+        'description',
+        'hari',
+        'jam_mulai',
+        'jam_selesai',
+        'tempat',
+        'deskripsi',
+        'status'
     ];
 
     public function students(): BelongsToMany
@@ -21,5 +27,10 @@ class Extracurricular extends Model
     public function activities(): HasMany
     {
         return $this->hasMany(ExtracurricularActivity::class);
+    }
+
+    public function guru(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'extracurricular_guru', 'extracurricular_id', 'user_id');
     }
 } 

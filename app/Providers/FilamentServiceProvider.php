@@ -2,19 +2,19 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse as LoginResponseContract;
+use Illuminate\Support\ServiceProvider;
+use Filament\Http\Responses\Auth\LoginResponse as FilamentLoginResponse;
 use App\Http\Responses\Auth\LoginResponse;
 
 class FilamentServiceProvider extends ServiceProvider
 {
-    public function register(): void
+    public function register()
     {
-        $this->app->bind(LoginResponseContract::class, LoginResponse::class);
+        $this->app->bind(FilamentLoginResponse::class, LoginResponse::class);
     }
 
-    public function boot(): void
+    public function boot()
     {
-        // Pindahkan navigation groups ke AdminPanelProvider
+        //
     }
 } 

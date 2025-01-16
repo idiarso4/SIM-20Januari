@@ -6,9 +6,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class Profile extends BaseEditProfile
 {
+    protected static string $view = 'filament.pages.profile';
+    
     public ?array $data = [];
 
     public function mount(): void
@@ -64,6 +67,11 @@ class Profile extends BaseEditProfile
             ->statePath('data');
     }
 
+    protected function getFormModel(): ?\Illuminate\Database\Eloquent\Model
+    {
+        return Auth::user();
+    }
+
     public function save(): void
     {
         $data = $this->form->getState();
@@ -74,18 +82,14 @@ class Profile extends BaseEditProfile
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
-            'password' => filled($data['password']) ? $data['password'] : $user->password,
         ]);
 
         if (filled($data['password'])) {
-            $this->updatePassword($data['password']);
+            $user->update([
+                'password' => Hash::make($data['password'])
+            ]);
         }
 
         $this->notify('success', 'Profile updated successfully.');
-    }
-
-    protected function getRedirectUrl(): string
-    {
-        return $this->getUrl();
     }
 }

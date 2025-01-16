@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Section;
 
 class CompleteProfile extends Page
 {
@@ -17,45 +18,44 @@ class CompleteProfile extends Page
     protected static string $view = 'filament.pages.complete-profile';
     protected static ?string $title = 'Complete Profile';
     
-    public ?array $data = [];
-
+    // Define the form property
+    public string $name = '';
+    
     protected static string $routeBaseName = 'filament.admin.pages.complete-profile';
     
-    public function mount()
+    public function mount(): void
     {
         if (!Auth::check()) {
-            return redirect()->route('filament.admin.auth.login');
+            $this->redirect(route('filament.admin.auth.login'));
+            return;
         }
         
-        $this->form->fill([
-            'name' => Auth::user()->name,
-        ]);
+        $this->name = Auth::user()->name;
     }
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required(),
-            ])
-            ->statePath('data');
+                Section::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+            ]);
     }
 
     public function submit(): void
     {
-        $data = $this->form->getState();
-        
-        Auth::user()->update([
-            'name' => $data['name'],
+        $validated = $this->validate([
+            'name' => ['required', 'string', 'max:255'],
         ]);
         
+        Auth::user()->update($validated);
+        
         $this->notify('success', 'Profile updated successfully.');
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Settings';
     }
 
     protected function getActions(): array
@@ -63,7 +63,7 @@ class CompleteProfile extends Page
         return [
             Action::make('save')
                 ->label('Save Changes')
-                ->submit('save'),
+                ->action('submit'),
         ];
     }
 

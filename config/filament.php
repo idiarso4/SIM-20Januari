@@ -8,7 +8,7 @@ return [
     'auth' => [
         'guard' => env('FILAMENT_AUTH_GUARD', 'web'),
         'pages' => [
-            'login' => \Filament\Pages\Auth\Login::class,
+            'login' => \App\Livewire\Auth\Login::class,
         ],
     ],
     'pages' => [
@@ -61,8 +61,13 @@ return [
         ],
     ],
     'middleware' => [
-        'web',
-        'auth',
+        'base' => [
+            'web',
+            'auth',
+        ],
+        'auth' => [
+            'verify' => true,
+        ],
     ],
     'database' => [
         'seeders' => [

@@ -17,17 +17,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Pages\Auth\Login;
-use App\Filament\Pages\Profile;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use Filament\Navigation\MenuItem;
-use App\Filament\Resources\StudentAssessmentResource;
-use App\Filament\Resources\AssessmentResource;
-use App\Filament\Widgets\AssessmentStatsOverview;
-use App\Filament\Widgets\LatestAssessments;
-use App\Filament\Widgets\RecentActivitiesWidget;
-use App\Filament\Widgets\StudentAssessmentChart;
-use App\Filament\Widgets\ClassRoomStatsWidget;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -41,6 +30,16 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('PRESENSI SKANSAPUNG')
             ->colors([
                 'primary' => Color::Amber,
+            ])
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->pages([
+                Pages\Dashboard::class,
+            ])
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->widgets([
+                Widgets\AccountWidget::class,
+                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -56,31 +55,6 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->plugins([
-                FilamentShieldPlugin::make()
-            ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->resources([
-                StudentAssessmentResource::class,
-                AssessmentResource::class,
-            ])
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([
-                Pages\Dashboard::class,
-            ])
-            ->authGuard('web')
-            ->registration()
-            ->passwordReset()
-            ->emailVerification()
-            ->userMenuItems([
-                'logout' => MenuItem::make()->label('Log out')
-            ])
-            ->widgets([
-                ClassRoomStatsWidget::class,
-                AssessmentStatsOverview::class,
-                LatestAssessments::class,
-                RecentActivitiesWidget::class,
-                StudentAssessmentChart::class,
-            ]);
+            ->authGuard('web');
     }
 }
