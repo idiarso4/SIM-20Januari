@@ -46,6 +46,18 @@ class TeacherJournalResource extends Resource
                     }),
                 Forms\Components\Hidden::make('guru_id')
                     ->default(fn () => auth()->id()),
+                Forms\Components\TextInput::make('mata_pelajaran')
+                    ->label('Mata Pelajaran')
+                    ->required(),
+                Forms\Components\Textarea::make('materi')
+                    ->label('Materi')
+                    ->required(),
+                Forms\Components\TimePicker::make('jam_mulai')
+                    ->label('Jam Mulai')
+                    ->required(),
+                Forms\Components\TimePicker::make('jam_selesai')
+                    ->label('Jam Selesai')
+                    ->required(),
                 Forms\Components\Section::make('Kegiatan Hari Ini')
                     ->schema([
                         Forms\Components\Placeholder::make('teaching_activities')

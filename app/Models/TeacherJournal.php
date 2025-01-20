@@ -13,7 +13,11 @@ class TeacherJournal extends Model
         'kegiatan',
         'hasil',
         'hambatan',
-        'pemecahan_masalah'
+        'pemecahan_masalah',
+        'mata_pelajaran',
+        'materi',
+        'jam_mulai',
+        'jam_selesai'
     ];
 
     protected $casts = [
