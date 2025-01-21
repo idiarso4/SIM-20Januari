@@ -39,10 +39,11 @@ class StudentPermitResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'name')
+                    ->relationship('student', 'nama_lengkap')
                     ->required()
                     ->label('Nama Siswa')
-                    ->searchable(),
+                    ->searchable()
+                    ->preload(),
                     
                 Forms\Components\Select::make('approved_by')
                     ->relationship('approver', 'name')
@@ -94,7 +95,7 @@ class StudentPermitResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('student.name')
+                Tables\Columns\TextColumn::make('student.nama_lengkap')
                     ->label('Nama Siswa')
                     ->searchable()
                     ->sortable(),
