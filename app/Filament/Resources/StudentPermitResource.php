@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\StudentPermitExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class StudentPermitResource extends Resource
 {
@@ -46,16 +47,47 @@ class StudentPermitResource extends Resource
                     ->preload(),
                     
                 Forms\Components\Select::make('approved_by')
-                    ->relationship('approver', 'name')
+                    ->options(function() {
+                        return \App\Models\User::query()
+                            ->whereHas('roles', fn($q) => $q->where('name', 'guru'))
+                            ->pluck('name', 'id')
+                            ->toArray();
+                    })
                     ->label('Guru yang Menyetujui')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->required()
+                    ->helperText('Pilih guru yang menyetujui izin siswa')
+                    ->columnSpan('full'),
                     
                 Forms\Components\Select::make('piket_guru_id')
-                    ->relationship('piketGuru', 'name')
+                    ->relationship('piketGuru', 'name', function ($query) {
+                        $today = Carbon::now();
+                        $dayName = str_replace(
+                            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                            ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                            $today->format('l')
+                        );
+                        
+                        return $query->whereHas('teacherDuties', function ($q) use ($dayName, $today) {
+                            $q->where('day', $dayName)
+                                ->where('is_active', true)
+                                ->whereTime('start_time', '<=', $today->format('H:i:s'))
+                                ->whereTime('end_time', '>=', $today->format('H:i:s'));
+                        })->where('role', 'guru');
+                    })
                     ->label('Guru Piket')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->required()
+                    ->helperText(function() {
+                        $today = Carbon::now();
+                        return 'Guru piket hari ' . str_replace(
+                            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                            ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+                            $today->format('l')
+                        );
+                    }),
                     
                 Forms\Components\DatePicker::make('permit_date')
                     ->required()
