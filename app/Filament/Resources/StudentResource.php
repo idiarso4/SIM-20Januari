@@ -19,6 +19,9 @@ use Filament\Tables\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection;
+use App\Filament\Actions\ResetStudentData;
+use Illuminate\Support\Facades\DB;
+use Filament\Notifications\Notification;
 
 class StudentResource extends Resource
 {
@@ -157,7 +160,27 @@ class StudentResource extends Resource
                     ->label('Download Excel')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(route('admin.students.export'))
-                    ->openUrlInNewTab()
+                    ->openUrlInNewTab(),
+                Action::make('reset_data')
+                    ->label('Reset Data Siswa')
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->requiresConfirmation()
+                    ->modalHeading('Reset Data Siswa')
+                    ->modalDescription('Apakah Anda yakin ingin mereset data siswa? Semua data siswa akan dihapus.')
+                    ->modalSubmitActionLabel('Ya, Reset Data')
+                    ->modalCancelActionLabel('Batal')
+                    ->action(function () {
+                        // Hapus data terkait terlebih dahulu
+                        DB::table('student_permits')->truncate();
+                        DB::table('extracurricular_student')->truncate();
+                        DB::table('students')->truncate();
+
+                        Notification::make()
+                            ->title('Data siswa berhasil direset')
+                            ->success()
+                            ->send();
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

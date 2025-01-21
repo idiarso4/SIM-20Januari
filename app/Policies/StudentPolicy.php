@@ -105,4 +105,12 @@ class StudentPolicy
     {
         return $user->can('reorder_student');
     }
+
+    /**
+     * Determine whether the user can reset data.
+     */
+    public function resetData(User $user): bool
+    {
+        return $user->hasRole('super_admin');
+    }
 }

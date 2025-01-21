@@ -35,16 +35,16 @@ class ClassRoomSeeder extends Seeder
 
         // Data kelas
         $classes = [
-            // Kelas X AKL
-            ['name' => 'X AKL 1', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'X AKL 2', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'X AKL 3', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'X AKL 4', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            // Kelas X AK
+            ['name' => 'X AK 1', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'X AK 2', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'X AK 3', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'X AK 4', 'level' => 'X', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
             
-            // Kelas X PPLG
-            ['name' => 'X PPLG 1', 'level' => 'X', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'X PPLG 2', 'level' => 'X', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'X PPLG 3', 'level' => 'X', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            // Kelas X SIJA
+            ['name' => 'X SIJA 1', 'level' => 'X', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'X SIJA 2', 'level' => 'X', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'X SIJA 3', 'level' => 'X', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
             
             // Kelas X TO
             ['name' => 'X TO 1', 'level' => 'X', 'department_id' => $departments['to']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
@@ -60,10 +60,10 @@ class ClassRoomSeeder extends Seeder
             ['name' => 'XI AKL 3', 'level' => 'XI', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
             ['name' => 'XI AKL 4', 'level' => 'XI', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
 
-            // Kelas XI PPLG
-            ['name' => 'XI PPLG 1', 'level' => 'XI', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'XI PPLG 2', 'level' => 'XI', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'XI PPLG 3', 'level' => 'XI', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            // Kelas XI SIJA
+            ['name' => 'XI SIJA 1', 'level' => 'XI', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'XI SIJA 2', 'level' => 'XI', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'XI SIJA 3', 'level' => 'XI', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
 
             // Kelas XI TBKR
             ['name' => 'XI TBKR 1', 'level' => 'XI', 'department_id' => $departments['tbkr']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
@@ -81,10 +81,10 @@ class ClassRoomSeeder extends Seeder
             ['name' => 'XII AKL 3', 'level' => 'XII', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
             ['name' => 'XII AKL 4', 'level' => 'XII', 'department_id' => $departments['akl']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
 
-            // Kelas XII PPLG
-            ['name' => 'XII PPLG 1', 'level' => 'XII', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'XII PPLG 2', 'level' => 'XII', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
-            ['name' => 'XII PPLG 3', 'level' => 'XII', 'department_id' => $departments['pplg']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            // Kelas XII SIJA
+            ['name' => 'XII SIJA 1', 'level' => 'XII', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'XII SIJA 2', 'level' => 'XII', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
+            ['name' => 'XII SIJA 3', 'level' => 'XII', 'department_id' => $departments['sija']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
 
             // Kelas XII TBKR
             ['name' => 'XII TBKR 1', 'level' => 'XII', 'department_id' => $departments['tbkr']->id, 'school_year_id' => $schoolYear->id, 'is_active' => true],
