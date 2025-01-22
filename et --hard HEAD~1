@@ -1,0 +1,142 @@
+[33mcommit 248eb08088c40dbf4b463bb6c87fe617fe24d094[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfix/class-names[m[33m, [m[1;31morigin/fix/class-names[m[33m)[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Tue Jan 21 10:47:28 2025 +0000
+
+    feat: implementasi sistem guru piket
+    
+    - Menambahkan tabel teacher_duties untuk jadwal guru piket
+    - Memperbaiki struktur tabel student_permits
+    - Update form perizinan untuk menampilkan guru piket yang sedang bertugas
+    - Perbaikan tampilan guru yang menyetujui menggunakan roles
+    - Optimasi query dan format waktu
+
+[33mcommit bc469e00c0f0f1d58d4431361be85e33e7cba0e4[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Tue Jan 21 09:55:35 2025 +0000
+
+    fix: perbaikan import siswa dan nama kelas
+    
+    - Memperbaiki StudentsImport untuk menangani kolom telp/no_telepon
+    - Menambahkan error handling dan logging pada import
+    - Memperbaiki penamaan kelas (X AKL ke X AK, PPLG ke SIJA)
+    - Menambahkan fitur reset data siswa
+    - Update ClassRoomSeeder dengan nama kelas yang benar
+
+[33mcommit b68f68ec07625c97605f262775727aa52841e42c[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Tue Jan 21 09:33:44 2025 +0000
+
+    fix nama kelas
+
+[33mcommit 561b30918fe215872ca2342fd5c6cb5e98ba4525[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Tue Jan 21 09:15:18 2025 +0000
+
+    feat: menambahkan modul laporan kerusakan barang (sarpras)
+    
+    - Menambahkan model DamageReport
+    - Menambahkan migrasi untuk tabel damage_reports
+    - Menambahkan Filament Resource untuk manajemen laporan kerusakan
+    - Menambahkan fitur CRUD laporan kerusakan
+
+[33mcommit c94381a603d5ee2d990b5946f142eb8b46e42787[m[33m ([m[1;32mtemp-landing-page[m[33m)[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Mon Jan 20 08:55:29 2025 +0000
+
+    feat: add subject details fields to teacher journals
+
+[33mcommit b1afee8ea1af3b815ed91f089c591c88150058a1[m[33m ([m[1;31morigin/temp-landing-page[m[33m)[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Thu Jan 16 01:57:44 2025 +0000
+
+    feat: add landing page, login page, and extracurricular guru migration
+
+[33mcommit c56ac5402f87825b9c832988474243120a510aee[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Wed Jan 15 17:34:07 2025 +0000
+
+    feat: Akademik System Enhancement
+    
+    - Penilaian Siswa:
+      * Perbaikan sistem input nilai
+      * Tambah fitur export Excel
+      * Validasi input nilai (0-100)
+      * Handling nilai default dan null
+    
+    - Dashboard Widgets:
+      * ClassRoomStatsWidget: statistik kelas dan siswa
+      * AssessmentStatsOverview: overview penilaian
+      * LatestAssessments: daftar nilai terbaru
+      * RecentActivitiesWidget: aktivitas pembelajaran
+      * StudentAssessmentChart: grafik rata-rata nilai
+    
+    - Optimasi:
+      * Implementasi lazy loading
+      * Perbaikan query performance
+      * Optimasi cache dan autoloader
+      * Error handling yang lebih baik
+    
+    - Documentation:
+      * Petunjuk penggunaan lengkap
+      * Troubleshooting guide
+      * Keamanan sistem
+
+[33mcommit 2af41d46988908d3c16d28793fa8bf9a55bd048e[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Wed Jan 15 17:03:13 2025 +0000
+
+    fix: SIM AKADEMIK - Perbaikan sistem penilaian siswa
+    
+    - Perbaikan input nilai siswa
+    - Menambahkan fitur edit nilai
+    - Memperbaiki tampilan daftar siswa
+    - Menangani nilai default dan null
+    - Optimasi performa form penilaian
+
+[33mcommit d66fbbaa901e953489d08b602d0c2cbbaedb86b6[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Wed Jan 15 15:25:36 2025 +0000
+
+    Fix jurnal agenda harian Guru
+
+[33mcommit 74417848ebe3e1493716b70fed87a32ef4f52db3[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Wed Jan 15 14:35:22 2025 +0000
+
+    Fix student attendance display in teaching activity form
+
+[33mcommit 907ee97f9453d56a3269f33396c74df2cec2999a[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Wed Jan 15 14:15:37 2025 +0000
+
+    Add migration to fix teaching activities unique constraint for updates
+
+[33mcommit f75d81bf831be6ac09c3f5144bb8b6304146094e[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Tue Jan 14 12:46:39 2025 +0000
+
+    [2024-01-13] Add restore database from upload feature and refresh button
+
+[33mcommit f54343e955e7a71fa08bbcfdbd77f20f9a08d9c0[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Sun Jan 12 17:54:08 2025 +0000
+
+    fix: update role and permission seeder, fix teacher seeder with proper role assignments
+
+[33mcommit ca2741a6b8bd2c17f50622cccf1f0143a57001b5[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Sun Jan 12 17:52:50 2025 +0000
+
+    fix: update role and permission seeder, fix teacher seeder with proper role assignments
+
+[33mcommit 808f973ecc85d78688ce9d6e13a1d4adc75fb711[m
+Author: idiarso4 <idiarso48@guru.smk.belajar.id>
+Date:   Sun Jan 12 04:21:30 2025 +0000
+
+    fix: resolve login redirect issues
+    
+    - Fix login redirect handling for both Livewire and normal requests
+    - Add proper type hints for LoginResponse
+    - Implement conditional redirect based on request type
+    - Use Filament panel URL for consistent redirection
+    - Handle Livewire specific redirects with X-Livewire header check

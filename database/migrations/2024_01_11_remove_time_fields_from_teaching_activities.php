@@ -9,7 +9,13 @@ return new class extends Migration
     public function up()
     {
         Schema::table('teaching_activities', function (Blueprint $table) {
-            $table->dropColumn(['jam_ke_mulai', 'jam_ke_selesai']);
+            // Cek keberadaan kolom sebelum menghapus
+            if (Schema::hasColumn('teaching_activities', 'jam_ke_mulai')) {
+                $table->dropColumn('jam_ke_mulai');
+            }
+            if (Schema::hasColumn('teaching_activities', 'jam_ke_selesai')) {
+                $table->dropColumn('jam_ke_selesai');
+            }
         });
     }
 

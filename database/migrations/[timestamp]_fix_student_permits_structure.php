@@ -26,11 +26,12 @@ return new class extends Migration
                 ->onDelete('set null')
                 ->nullable();
 
+            $table->foreignId('piket_guru_id')->nullable()->change();
+
             $table->foreign('piket_guru_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('set null')
-                ->nullable();
+                ->onDelete('set null');
         });
     }
 
@@ -43,6 +44,13 @@ return new class extends Migration
 
             // Restore original foreign keys if needed
             $table->foreign('student_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->foreignId('piket_guru_id')->change();
+
+            $table->foreign('piket_guru_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');

@@ -12,50 +12,52 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('student_assessments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
-            $table->foreignId('guru_id')
-                ->constrained('users')
-                ->cascadeOnDelete();
-            $table->foreignId('class_room_id')
-                ->constrained()
-                ->cascadeOnDelete();
-            $table->foreignId('teacher_journal_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete();
-            $table->string('mata_pelajaran');
-            $table->enum('jenis_penilaian', [
-                'teori',
-                'praktik',
-                'tugas',
-                'uh',
-                'uts',
-                'uas'
-            ]);
-            $table->unsignedTinyInteger('attempt')->default(1);
-            $table->string('kompetensi_dasar');
-            $table->date('tanggal');
-            $table->decimal('nilai', 5, 2);
-            $table->text('deskripsi')->nullable();
-            $table->text('catatan_guru')->nullable();
-            $table->timestamps();
-            
-            // Satu siswa hanya bisa memiliki 5 kesempatan per jenis penilaian
-            $table->unique([
-                'student_id',
-                'guru_id',
-                'mata_pelajaran',
-                'jenis_penilaian',
-                'attempt'
-            ], 'assessment_attempt_unique');
-        });
+        if (!Schema::hasTable('student_assessments')) {
+            Schema::create('student_assessments', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('student_id')
+                    ->constrained('users')
+                    ->cascadeOnDelete();
+                $table->foreignId('guru_id')
+                    ->constrained('users')
+                    ->cascadeOnDelete();
+                $table->foreignId('class_room_id')
+                    ->constrained()
+                    ->cascadeOnDelete();
+                $table->foreignId('teacher_journal_id')
+                    ->nullable()
+                    ->constrained()
+                    ->nullOnDelete();
+                $table->string('mata_pelajaran');
+                $table->enum('jenis_penilaian', [
+                    'teori',
+                    'praktik',
+                    'tugas',
+                    'uh',
+                    'uts',
+                    'uas'
+                ]);
+                $table->unsignedTinyInteger('attempt')->default(1);
+                $table->string('kompetensi_dasar');
+                $table->date('tanggal');
+                $table->decimal('nilai', 5, 2);
+                $table->text('deskripsi')->nullable();
+                $table->text('catatan_guru')->nullable();
+                $table->timestamps();
+                
+                // Satu siswa hanya bisa memiliki 5 kesempatan per jenis penilaian
+                $table->unique([
+                    'student_id',
+                    'guru_id',
+                    'mata_pelajaran',
+                    'jenis_penilaian',
+                    'attempt'
+                ], 'assessment_attempt_unique');
 
-        // Menambahkan constraint untuk attempt maksimal 5 menggunakan DB statement
-        DB::statement('ALTER TABLE student_assessments ADD CONSTRAINT check_attempt CHECK (attempt <= 5)');
+                // Menambahkan constraint untuk attempt maksimal 5
+                DB::statement('ALTER TABLE student_assessments ADD CONSTRAINT check_attempt CHECK (attempt <= 5)');
+            });
+        }
     }
 
     /**

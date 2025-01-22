@@ -11,22 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('student_permits', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('piket_guru_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->date('permit_date');
-            $table->time('start_time');
-            $table->time('end_time')->nullable();
-            $table->string('reason');
-            $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
-            $table->text('notes')->nullable();
-            $table->timestamp('approved_at')->nullable();
-            $table->timestamp('returned_at')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        if (!Schema::hasTable('student_permits')) {
+            Schema::create('student_permits', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+                $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+                $table->foreignId('piket_guru_id')->nullable()->constrained('users')->onDelete('set null');
+                $table->date('permit_date');
+                $table->time('start_time');
+                $table->time('end_time')->nullable();
+                $table->string('reason');
+                $table->enum('status', ['pending', 'approved', 'completed', 'rejected'])->default('pending');
+                $table->text('notes')->nullable();
+                $table->timestamp('approved_at')->nullable();
+                $table->timestamp('returned_at')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     /**
