@@ -104,9 +104,7 @@ class UserResource extends Resource
                     ])
                     ->action(function (Collection $records, array $data): void {
                         foreach ($records as $user) {
-                            foreach ($data['roles'] as $role) {
-                                $user->removeRole($role);
-                            }
+                            $user->removeRole($data['roles']);
                         }
 
                         Notification::make()
@@ -115,9 +113,11 @@ class UserResource extends Resource
                             ->send();
                     })
                     ->deselectRecordsAfterCompletion(),
-
-                Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])
+            ->defaultPaginationPageSize(500)
+            ->paginationPageOptions([100, 250, 500, 1000])
+            ->maxRecordsPerPage(1000)
+            ->selectableRecordsPerPage(500); // Set maximum selectable records to 500
     }
 
     public static function getPages(): array

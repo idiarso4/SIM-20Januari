@@ -10,7 +10,6 @@
         "bezhansalleh/filament-shield": "^3.3",
         "dedoc/scramble": "^0.11.13",
         "doctrine/dbal": "^4.2",
-        "filament/filament": "^3.2",
         "humaidem/filament-map-picker": "^0.1.5",
         "illuminate/cache": "*",
         "laravel/fortify": "^1.21",

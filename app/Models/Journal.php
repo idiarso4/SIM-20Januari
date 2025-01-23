@@ -8,28 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Journal extends Model
 {
     protected $fillable = [
-        'internship_id',
-        'date',
-        'activity_description',
-        'learning_outcomes',
-        'challenges',
-        'solutions',
+        'guru_id',
+        'tanggal',
+        'jenis_kegiatan',
+        'lokasi',
+        'deskripsi',
+        'bukti_kegiatan',
         'status',
-        'feedback',
-        'attachment',
+        'keterangan',
     ];
 
     protected $casts = [
-        'date' => 'date',
+        'tanggal' => 'date',
     ];
 
-    public function internship(): BelongsTo
+    public function guru(): BelongsTo
     {
-        return $this->belongsTo(Internship::class);
-    }
-
-    public function student()
-    {
-        return $this->internship->student();
+        return $this->belongsTo(User::class, 'guru_id');
     }
 } 
