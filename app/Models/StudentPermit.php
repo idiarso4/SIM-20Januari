@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentPermit extends Model
 {
@@ -32,17 +33,17 @@ class StudentPermit extends Model
         'returned_at' => 'datetime',
     ];
 
-    public function student()
+    public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class, 'student_id');
+        return $this->belongsTo(Student::class);
     }
 
-    public function approver()
+    public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function piketGuru()
+    public function piketGuru(): BelongsTo
     {
         return $this->belongsTo(User::class, 'piket_guru_id');
     }

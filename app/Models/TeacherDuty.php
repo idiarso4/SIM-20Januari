@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TeacherDuty extends Model
 {
     protected $fillable = [
-        'user_id',
+        'teacher_id',
         'day',
         'start_time',
         'end_time',
@@ -23,6 +23,6 @@ class TeacherDuty extends Model
 
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 } 

@@ -50,44 +50,16 @@ class StudentPermitResource extends Resource
                     ->options(function() {
                         return \App\Models\User::query()
                             ->whereHas('roles', fn($q) => $q->where('name', 'guru'))
+                            ->where('id', auth()->id())
                             ->pluck('name', 'id')
                             ->toArray();
                     })
-                    ->label('Guru yang Menyetujui')
-                    ->searchable()
-                    ->preload()
+                    ->label('Guru yang Mengajukan')
                     ->required()
-                    ->helperText('Pilih guru yang menyetujui izin siswa')
+                    ->default(auth()->id())
+                    ->disabled()
+                    ->helperText('Guru yang mengajukan izin siswa')
                     ->columnSpan('full'),
-                    
-                Forms\Components\Select::make('piket_guru_id')
-                    ->relationship('piketGuru', 'name', function ($query) {
-                        $today = Carbon::now();
-                        $dayName = str_replace(
-                            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                            ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-                            $today->format('l')
-                        );
-                        
-                        return $query->whereHas('teacherDuties', function ($q) use ($dayName, $today) {
-                            $q->where('day', $dayName)
-                                ->where('is_active', true)
-                                ->whereTime('start_time', '<=', $today->format('H:i:s'))
-                                ->whereTime('end_time', '>=', $today->format('H:i:s'));
-                        })->where('role', 'guru');
-                    })
-                    ->label('Guru Piket')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->helperText(function() {
-                        $today = Carbon::now();
-                        return 'Guru piket hari ' . str_replace(
-                            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                            ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-                            $today->format('l')
-                        );
-                    }),
                     
                 Forms\Components\DatePicker::make('permit_date')
                     ->required()
@@ -106,17 +78,9 @@ class StudentPermitResource extends Resource
                     ->label('Alasan')
                     ->maxLength(255),
                     
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'pending' => 'Menunggu',
-                        'approved' => 'Disetujui',
-                        'completed' => 'Selesai',
-                        'rejected' => 'Ditolak',
-                    ])
-                    ->default('pending')
-                    ->required()
-                    ->label('Status'),
-                    
+                Forms\Components\Hidden::make('status')
+                    ->default('pending'),
+                
                 Forms\Components\Textarea::make('notes')
                     ->label('Catatan')
                     ->maxLength(65535),
@@ -133,12 +97,7 @@ class StudentPermitResource extends Resource
                     ->sortable(),
                     
                 Tables\Columns\TextColumn::make('approver.name')
-                    ->label('Disetujui Oleh')
-                    ->searchable()
-                    ->sortable(),
-                    
-                Tables\Columns\TextColumn::make('piketGuru.name')
-                    ->label('Guru Piket')
+                    ->label('Guru yang Mengajukan')
                     ->searchable()
                     ->sortable(),
                     

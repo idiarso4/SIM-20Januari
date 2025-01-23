@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\TeacherDuty;
+use App\Policies\TeacherDutyPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -12,7 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        TeacherDuty::class => TeacherDutyPolicy::class,
     ];
 
     /**

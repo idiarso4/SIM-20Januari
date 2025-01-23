@@ -41,4 +41,9 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Extracurricular::class, 'guru_id');
     }
+
+    public function teacherDuties()
+    {
+        return $this->hasMany(TeacherDuty::class, 'teacher_id');
+    }
 }

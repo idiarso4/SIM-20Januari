@@ -96,4 +96,29 @@ D. KEAMANAN
    - Nilai yang sudah disimpan tidak bisa dihapus tanpa izin
    - Perubahan nilai tercatat dalam log sistem
 
+E. MANAJEMEN PENGGUNA
+--------------------
+
+1. Pengaturan Multi-Role
+   - Login sebagai admin
+   - Buka menu "Users Management"
+   - Untuk update role massal:
+     * Centang kotak di samping nama pengguna yang akan diubah (bisa pilih beberapa sekaligus)
+     * Gunakan checkbox di header tabel untuk memilih semua user dalam halaman tersebut
+     * Klik tombol "Bulk Actions"
+     * Pilih "Add Role: Guru Piket" dari dropdown menu
+     * Klik "Apply" untuk menambahkan role Guru Piket ke semua user yang dipilih
+   - Perubahan role akan langsung aktif
+   - Semua pengguna yang dipilih akan mendapat akses sebagai Guru Piket
+   - Role sebelumnya (seperti Guru Mapel) tetap akan dipertahankan
+
+2. Verifikasi Role
+   - Setelah update, periksa daftar pengguna
+   - Pastikan role yang ditambahkan sudah sesuai
+   - Role yang aktif akan terlihat di kolom "Roles"
+   - Pengguna bisa memiliki multiple role seperti:
+     * Guru Mapel + Guru Piket
+     * Guru Mapel + Wali Kelas
+     * Dan kombinasi role lainnya
+
 Untuk informasi lebih lanjut atau bantuan, silakan hubungi admin sistem. 
