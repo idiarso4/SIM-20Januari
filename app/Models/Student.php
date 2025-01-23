@@ -32,4 +32,9 @@ class Student extends Model
     {
         return $this->belongsToMany(Extracurricular::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 } 

@@ -101,6 +101,9 @@ class StudentResource extends Resource
                     ->label('Kelas')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->badge()
+                    ->separator(','),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('class_room_id')
@@ -184,11 +187,33 @@ class StudentResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('assignSiswaRole')
+                        ->label('Set sebagai Siswa')
+                        ->icon('heroicon-o-academic-cap')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            $count = 0;
+                            foreach ($records as $student) {
+                                if (!$student->user->hasRole('siswa')) {
+                                    $student->user->assignRole('siswa');
+                                    $count++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->success()
+                                ->title("Berhasil menambahkan role Siswa ke {$count} siswa")
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('nama_lengkap', 'asc')
-            ->paginated([10, 25, 50, 100]);
+            ->paginated([10, 25, 50, 100, 'all'])
+            ->paginationPageOptions([10, 25, 50, 100, 'all']);
     }
     
     public static function getRelations(): array

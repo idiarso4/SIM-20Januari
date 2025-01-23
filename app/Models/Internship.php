@@ -9,31 +9,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Internship extends Model
 {
     protected $fillable = [
-        'user_id',
-        'guru_pembimbing_id',
-        'company_name',
-        'company_address',
-        'supervisor_name',
-        'supervisor_contact',
-        'start_date',
-        'end_date',
+        'siswa_id',
+        'office',
+        'jenis_perusahaan',
+        'deskripsi_perusahaan',
+        'tanggal_selesai',
+        'telepon',
         'status',
-        'notes',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
+        'tanggal_selesai' => 'date',
     ];
 
-    public function student(): BelongsTo
+    public function siswa(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function teacher(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'guru_pembimbing_id');
+        return $this->belongsTo(User::class, 'siswa_id');
     }
 
     public function journals(): HasMany
