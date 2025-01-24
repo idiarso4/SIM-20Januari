@@ -17,6 +17,9 @@ class CreateTeachingActivity extends CreateRecord
             $data['guru_id'] = auth()->id();
         }
 
+        // Set jam_ke sama dengan jam_ke_mulai jika belum diset
+        $data['jam_ke'] = $data['jam_ke'] ?? $data['jam_ke_mulai'];
+
         return $data;
     }
 

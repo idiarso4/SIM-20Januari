@@ -17,7 +17,8 @@ class TeachingActivity extends Model
         'jam_ke_selesai',
         'media_dan_alat',
         'attendances',
-        'important_notes'
+        'important_notes',
+        'jam_ke',
     ];
 
     protected $casts = [

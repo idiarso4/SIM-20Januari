@@ -105,24 +105,6 @@ class StudentResource extends Resource
                     ->badge()
                     ->separator(','),
             ])
-            ->filters([
-                Tables\Filters\SelectFilter::make('class_room_id')
-                    ->label('Kelas')
-                    ->relationship('classRoom', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->multiple(),
-                Tables\Filters\SelectFilter::make('jenis_kelamin')
-                    ->label('Jenis Kelamin')
-                    ->options([
-                        'L' => 'Laki-laki',
-                        'P' => 'Perempuan',
-                    ]),
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-            ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('New student'),
@@ -185,6 +167,25 @@ class StudentResource extends Resource
                             ->send();
                     })
             ])
+            ->defaultSort('nama_lengkap', 'asc')
+            ->filters([
+                Tables\Filters\SelectFilter::make('class_room_id')
+                    ->label('Kelas')
+                    ->relationship('classRoom', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('jenis_kelamin')
+                    ->label('Jenis Kelamin')
+                    ->options([
+                        'L' => 'Laki-laki',
+                        'P' => 'Perempuan',
+                    ]),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\BulkAction::make('assignSiswaRole')
@@ -210,10 +211,7 @@ class StudentResource extends Resource
 
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->defaultSort('nama_lengkap', 'asc')
-            ->paginated([10, 25, 50, 100, 'all'])
-            ->paginationPageOptions([10, 25, 50, 100, 'all']);
+            ]);
     }
     
     public static function getRelations(): array

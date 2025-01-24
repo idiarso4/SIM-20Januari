@@ -26,11 +26,20 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $modelLabel = 'Pengguna';
+    
+    protected static ?string $pluralModelLabel = 'Pengguna';
+
+    protected static ?int $defaultPerPage = 25;
+
+    protected static array $perPageOptions = [10, 25, 50, 100];
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nama')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
@@ -42,10 +51,12 @@ class UserResource extends Resource
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                     ->dehydrated(fn ($state) => filled($state))
                     ->required(fn (string $context): bool => $context === 'create'),
-                Forms\Components\CheckboxList::make('roles')
-                    ->label('Roles')
+                Forms\Components\Select::make('roles')
+                    ->label('Role')
+                    ->multiple()
                     ->relationship('roles', 'name')
-                    ->columns(2),
+                    ->preload()
+                    ->required(),
             ]);
     }
 
@@ -54,70 +65,61 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Nama')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('roles.name')
-                    ->badge()
-                    ->separator(','),
+                    ->label('Role')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Dibuat')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Diperbarui')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->before(function ($record) {
+                        if ($record->hasRole('super_admin')) {
+                            return false;
+                        }
+                    }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('assignRoles')
-                    ->label('Assign Roles')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('success')
-                    ->form([
-                        Forms\Components\CheckboxList::make('roles')
-                            ->label('Select Roles')
-                            ->options(Role::pluck('name', 'name'))
-                            ->columns(2)
-                            ->required(),
-                    ])
-                    ->action(function (Collection $records, array $data): void {
-                        foreach ($records as $user) {
-                            $user->syncRoles($data['roles']);
-                        }
-
-                        Notification::make()
-                            ->success()
-                            ->title('Roles assigned successfully')
-                            ->send();
-                    })
-                    ->deselectRecordsAfterCompletion(),
-
-                Tables\Actions\BulkAction::make('removeRoles')
-                    ->label('Remove Roles')
-                    ->icon('heroicon-o-user-minus')
-                    ->color('danger')
-                    ->form([
-                        Forms\Components\CheckboxList::make('roles')
-                            ->label('Select Roles to Remove')
-                            ->options(Role::pluck('name', 'name'))
-                            ->columns(2)
-                            ->required(),
-                    ])
-                    ->action(function (Collection $records, array $data): void {
-                        foreach ($records as $user) {
-                            $user->removeRole($data['roles']);
-                        }
-
-                        Notification::make()
-                            ->success()
-                            ->title('Roles removed successfully')
-                            ->send();
-                    })
-                    ->deselectRecordsAfterCompletion(),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->before(function ($records) {
+                            foreach ($records as $record) {
+                                if ($record->hasRole('super_admin')) {
+                                    return false;
+                                }
+                            }
+                        }),
+                ]),
             ])
-            ->defaultPaginationPageSize(500)
-            ->paginationPageOptions([100, 250, 500, 1000])
-            ->maxRecordsPerPage(1000)
-            ->selectableRecordsPerPage(500); // Set maximum selectable records to 500
+            ->defaultSort('created_at', 'desc')
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->persistSearchInSession();
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
     }
 
     public static function getPages(): array
@@ -127,5 +129,17 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->whereDoesntHave('roles', function ($query) {
+            $query->where('name', 'super_admin');
+        });
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Pengaturan';
     }
 }

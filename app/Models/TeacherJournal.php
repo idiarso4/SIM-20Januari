@@ -10,22 +10,22 @@ class TeacherJournal extends Model
     protected $fillable = [
         'tanggal',
         'guru_id',
+        'day',
+        'mata_pelajaran',
         'kegiatan',
         'hasil',
         'hambatan',
         'pemecahan_masalah',
-        'mata_pelajaran',
-        'materi',
-        'jam_mulai',
-        'jam_selesai'
-    ];
-
-    protected $casts = [
-        'tanggal' => 'date'
+        'notes'
     ];
 
     public function guru(): BelongsTo
     {
         return $this->belongsTo(User::class, 'guru_id');
+    }
+
+    public function kelas(): BelongsTo
+    {
+        return $this->belongsTo(ClassRoom::class, 'kelas_id');
     }
 }

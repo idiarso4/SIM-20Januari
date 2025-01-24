@@ -62,7 +62,11 @@ class TeachingActivityResource extends Resource
                             ->label('Jam Ke')
                             ->numeric()
                             ->minValue(1)
-                            ->maxValue(12),
+                            ->maxValue(12)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                $set('jam_ke', $state);
+                            }),
                         Forms\Components\TextInput::make('jam_ke_selesai')
                             ->required()
                             ->label('Sampai Jam Ke')

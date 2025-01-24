@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use App\Models\TeacherDuty;
 use App\Policies\TeacherDutyPolicy;
+use App\Models\StudentPermit;
+use App\Policies\StudentPermitPolicy;
+use App\Policies\DutyTeacherPermitPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -15,6 +18,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         TeacherDuty::class => TeacherDutyPolicy::class,
+        StudentPermit::class => StudentPermitPolicy::class,
+        'App\Models\StudentPermit' => DutyTeacherPermitPolicy::class,
     ];
 
     /**

@@ -6,22 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
-        Schema::create('internships', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('siswa_id')->constrained('users');
-            $table->string('office');
-            $table->string('jenis_perusahaan');
-            $table->text('deskripsi_perusahaan');
-            $table->date('tanggal_selesai');
-            $table->string('telepon');
-            $table->enum('status', ['aktif', 'selesai', 'berhenti'])->default('aktif');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('internships')) {
+            Schema::create('internships', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('siswa_id')->constrained('students')->onDelete('cascade');
+                $table->string('office');
+                $table->string('jenis_perusahaan');
+                $table->text('deskripsi_perusahaan');
+                $table->date('tanggal_selesai');
+                $table->string('telepon');
+                $table->enum('status', ['aktif', 'selesai', 'berhenti'])->default('aktif');
+                $table->timestamps();
+            });
+        }
     }
 
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('internships');
     }

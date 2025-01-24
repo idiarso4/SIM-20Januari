@@ -90,4 +90,7 @@ return [
         'number_of_records' => 500, // Maximum number of records that can be selected in bulk actions
     ],
 
+    'default_per_page' => 25,
+    'per_page_options' => [10, 25, 50, 100],
+
 ];
