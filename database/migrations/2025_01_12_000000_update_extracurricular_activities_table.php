@@ -11,6 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Drop foreign key constraint first
+        Schema::table('extracurricular_activity_attendances', function (Blueprint $table) {
+            $table->dropForeign('extra_act_att_activity_id_foreign');
+            $table->dropColumn('extracurricular_activity_id');
+        });
+        
+        // Now we can safely drop and recreate the table
         Schema::dropIfExists('extracurricular_activities');
         
         Schema::create('extracurricular_activities', function (Blueprint $table) {
@@ -34,5 +41,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('extracurricular_activities');
+        
+        // Recreate the original foreign key
+        Schema::table('extracurricular_activity_attendances', function (Blueprint $table) {
+            $table->unsignedBigInteger('extracurricular_activity_id');
+            $table->foreign('extracurricular_activity_id', 'extra_act_att_activity_id_foreign')
+                ->references('id')
+                ->on('extracurricular_activities')
+                ->cascadeOnDelete();
+        });
     }
-}; 
+};

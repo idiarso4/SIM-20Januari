@@ -12,9 +12,11 @@ class DepartmentSeeder extends Seeder
     {
         $departments = [
             [
-                'name' => 'Akuntansi dan keuangan Lembaga',
+                'name' => 'Akuntansi dan Keuangan Lembaga',
                 'kode' => 'akl',
                 'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
             [
                 'name' => 'Pengembangan Perangkat Lunak dan Gim',
@@ -40,6 +42,8 @@ class DepartmentSeeder extends Seeder
                 'name' => 'Sistem Informasi Jaringan dan Aplikasi',
                 'kode' => 'sija',
                 'status' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ];
 

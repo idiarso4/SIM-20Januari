@@ -11,13 +11,13 @@ return new class extends Migration
         Schema::table('teaching_activities', function (Blueprint $table) {
             // Attempt to drop the foreign key constraint - wrapped in try/catch in case it doesn't exist
             try {
-                $table->dropForeign(['class_room_id']);
+                $table->dropForeign('teaching_activities_kelas_id_foreign');
             } catch (\Exception $e) {
                 // Constraint might not exist, continue anyway
             }
             
             // Then drop the column
-            $table->dropColumn('class_room_id');
+            $table->dropColumn('kelas_id');
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
     {
         Schema::table('teaching_activities', function (Blueprint $table) {
             $table->foreignId('kelas_id')->after('guru_id')->constrained('class_rooms');
-            $table->json('attendances')->after('media_dan_alat')->nullable();
+            $table->json('attendances')->after('keterangan')->nullable();
         });
     }
-}; 
+};
