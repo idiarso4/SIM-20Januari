@@ -22,12 +22,22 @@ class StudentsImport implements ToModel, WithHeadingRow
             return null;
         }
 
-        $classRoom = ClassRoom::where('name', $row['kelas'])->first();
+        // Check if kelas column exists and is not empty
+        if (!isset($row['kelas']) || empty(trim($row['kelas']))) {
+            Log::warning('Skipping row: Empty or missing class name', [
+                'nis' => $row['nis'],
+                'nama_lengkap' => $row['nama_lengkap'] ?? 'not set'
+            ]);
+            return null;
+        }
+
+        $classRoom = ClassRoom::where('name', trim($row['kelas']))->first();
         
         if (!$classRoom) {
             Log::warning('Skipping row: Classroom not found', [
-                'kelas' => $row['kelas'] ?? 'not set',
-                'row' => $row
+                'kelas' => $row['kelas'],
+                'nis' => $row['nis'],
+                'nama_lengkap' => $row['nama_lengkap'] ?? 'not set'
             ]);
             return null;
         }
@@ -44,8 +54,8 @@ class StudentsImport implements ToModel, WithHeadingRow
             'jenis_kelamin' => $row['jenis_kelamin'],
             'agama' => $row['agama'],
             'email' => $row['email'],
-            'telp' => $row['telp'],
+            'telp' => $row['no_telepon'],
             'class_room_id' => $classRoom->id,
         ]);
     }
-} 
+}
